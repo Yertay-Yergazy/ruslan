@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('client.index') }}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('client.services') }}">Услуги</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('client.services', category=service.category.slug) }}">{{ service.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ service.name }}</li>
+        </ol>
+    </nav>
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <h1 class="fw-bold mb-2">{{ service.name }}</h1>
+            <div class="d-flex flex-wrap gap-3 mb-4">
+                <span class="badge bg-warning text-dark px-3 py-2">
+                    <i class="fas {{ service.category.icon }} me-1"></i>{{ service.category.name }}
+                </span>
+                <span class="text-muted"><i class="fas fa-clock me-1"></i>{{ service.duration_display }}</span>
+            </div>
+            {% if service.description %}
+            <div class="mb-4">
+                <h5 class="fw-bold mb-3">Описание</h5>
+                <p class="text-muted">{{ service.description }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Masters for this service -->
+            {% if employees %}
+            <h5 class="fw-bold mb-3">Мастера, выполняющие эту услугу</h5>
+            <div class="row g-3 mb-4">
+                {% for emp in employees %}
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body d-flex align-items-center gap-3 p-3">
+                            {% if emp.photo and emp.photo != 'default_employee.jpg' %}
+                            <img src="{{ url_for('static', filename='uploads/' + emp.photo) }}"
+                                 class="rounded-circle" width="54" height="54" style="object-fit:cover;flex-shrink:0;">
+                            {% else %}
+                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center fw-bold text-dark"
+                                 style="width:54px;height:54px;flex-shrink:0;">
+                                {{ emp.user.first_name[0] }}{{ emp.user.last_name[0] }}
+                            </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">{{ emp.user.full_name }}</div>
+                                <div class="text-muted small">{{ emp.specialization or 'Мастер' }}</div>
+                                {% if emp.avg_rating %}
+                                <div class="small text-warning">★ {{ emp.avg_rating }}</div>
+                                {% endif %}
+                            </div>
+                            <a href="{{ url_for('client.booking', service_id=service.id, employee_id=emp.id) }}"
+                               class="btn btn-warning btn-sm flex-shrink-0">Записаться</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Reviews -->
+            {% if reviews %}
+            <h5 class="fw-bold mb-3">Отзывы об услуге</h5>
+            {% for review in reviews %}
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex gap-1">
+                            {% for i in range(1,6) %}
+                            <i class="fas fa-star {% if i <= review.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <span class="text-muted small">{{ review.created_at | format_date }}</span>
+                    </div>
+                    <p class="mb-1">{{ review.comment or '' }}</p>
+                    <div class="text-muted small">{{ review.author.first_name }} {{ review.author.last_name[0] }}.</div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Booking Sidebar -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg sticky-top" style="top:80px;">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="display-6 fw-bold text-success">{{ service.price | format_price }} ₸</div>
+                        <div class="text-muted">{{ service.duration_display }}</div>
+                    </div>
+                    <a href="{{ url_for('client.booking', service_id=service.id) }}"
+                       class="btn btn-warning btn-lg w-100 fw-bold mb-3">
+                        <i class="fas fa-calendar-plus me-2"></i>Записаться на услугу
+                    </a>
+                    <div class="text-center text-muted small">
+                        <i class="fas fa-shield-alt text-success me-1"></i>
+                        Бесплатная отмена за 2 часа до визита
+                    </div>
+                    <hr>
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Гарантия на работы</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Только оригинальные запчасти</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Онлайн отслеживание статуса</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Фотоотчёт о работах</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

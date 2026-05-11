@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6">
+                <div class="hero-badge mb-3">
+                    <i class="fas fa-star text-warning me-2"></i>
+                    <span>Профессиональный автосервис</span>
+                </div>
+                <h1 class="display-4 fw-bold text-white mb-4 lh-sm">
+                    Запишитесь к мастеру<br>
+                    <span class="text-warning">онлайн за 2 минуты</span>
+                </h1>
+                <p class="lead text-light mb-4 opacity-75">
+                    Современный автосервис с опытными специалистами. Диагностика, ремонт, ТО — всё в одном месте.
+                    Без очередей и ожидания.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('client.booking') }}" class="btn btn-warning btn-lg fw-bold px-5 shadow">
+                        <i class="fas fa-calendar-plus me-2"></i>Записаться онлайн
+                    </a>
+                    <a href="{{ url_for('client.services') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-tools me-2"></i>Наши услуги
+                    </a>
+                </div>
+                <!-- Quick stats -->
+                <div class="row g-3 mt-4">
+                    <div class="col-auto">
+                        <div class="text-white">
+                            <div class="h4 fw-bold mb-0 text-warning">{{ stats.total_bookings }}+</div>
+                            <div class="small opacity-75">Выполненных заказов</div>
+                        </div>
+                    </div>
+                    <div class="col-auto px-4 border-start border-secondary">
+                        <div class="text-white">
+                            <div class="h4 fw-bold mb-0 text-warning">{{ stats.total_employees }}+</div>
+                            <div class="small opacity-75">Мастеров</div>
+                        </div>
+                    </div>
+                    <div class="col-auto px-4 border-start border-secondary">
+                        <div class="text-white">
+                            <div class="h4 fw-bold mb-0 text-warning">{{ stats.avg_rating or '5.0' }}★</div>
+                            <div class="small opacity-75">Средняя оценка</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-flex justify-content-center">
+                <div class="hero-image-placeholder">
+                    <i class="fas fa-car-wrench" style="font-size:10rem;color:rgba(255,193,7,0.15);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Категории услуг</h2>
+            <p class="text-muted">Полный спектр услуг для вашего автомобиля</p>
+        </div>
+        <div class="row g-3">
+            {% for cat in categories %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{{ url_for('client.services', category=cat.slug) }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 category-card text-center p-3">
+                        <div class="category-icon mb-3">
+                            <i class="fas {{ cat.icon }}"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">{{ cat.name }}</h6>
+                        <small class="text-muted">{{ cat.services.count() }} услуг</small>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Services -->
+{% if featured_services %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="fw-bold mb-1">Популярные услуги</h2>
+                <p class="text-muted mb-0">Наиболее востребованные сервисы</p>
+            </div>
+            <a href="{{ url_for('client.services') }}" class="btn btn-outline-warning">Все услуги →</a>
+        </div>
+        <div class="row g-4">
+            {% for service in featured_services %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 service-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="service-icon-box">
+                                <i class="fas {{ service.category.icon }}"></i>
+                            </div>
+                            <div>
+                                <span class="badge bg-warning text-dark small">{{ service.category.name }}</span>
+                                <div class="text-muted small mt-1"><i class="fas fa-clock me-1"></i>{{ service.duration_display }}</div>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold mb-2">{{ service.name }}</h5>
+                        <p class="text-muted small mb-3">{{ service.short_description or service.description[:120] + '...' if service.description and service.description|length > 120 else service.short_description or service.description or '' }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <div class="h5 fw-bold text-success mb-0">{{ service.price | format_price }} ₸</div>
+                            <a href="{{ url_for('client.booking', service_id=service.id) }}" class="btn btn-warning btn-sm fw-bold px-3">
+                                Записаться
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- How It Works -->
+<section class="py-5 bg-dark text-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Как это работает</h2>
+            <p class="text-muted">Запись занимает меньше 2 минут</p>
+        </div>
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="step-number">1</div>
+                <h5 class="fw-bold mt-3 mb-2">Выберите услугу</h5>
+                <p class="text-muted small">Найдите нужный вид ремонта или обслуживания в нашем каталоге</p>
+            </div>
+            <div class="col-md-3">
+                <div class="step-number">2</div>
+                <h5 class="fw-bold mt-3 mb-2">Выберите мастера</h5>
+                <p class="text-muted small">Изучите профили мастеров и выберите подходящего специалиста</p>
+            </div>
+            <div class="col-md-3">
+                <div class="step-number">3</div>
+                <h5 class="fw-bold mt-3 mb-2">Выберите время</h5>
+                <p class="text-muted small">Выберите удобную дату и свободный временной слот в расписании</p>
+            </div>
+            <div class="col-md-3">
+                <div class="step-number">4</div>
+                <h5 class="fw-bold mt-3 mb-2">Приезжайте</h5>
+                <p class="text-muted small">Получите подтверждение и приезжайте в назначенное время</p>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="{{ url_for('client.booking') }}" class="btn btn-warning btn-lg fw-bold px-5">
+                <i class="fas fa-calendar-plus me-2"></i>Записаться прямо сейчас
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Team -->
+{% if employees %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="fw-bold mb-1">Наши мастера</h2>
+                <p class="text-muted mb-0">Профессионалы с многолетним опытом</p>
+            </div>
+            <a href="{{ url_for('client.employees') }}" class="btn btn-outline-dark">Все мастера →</a>
+        </div>
+        <div class="row g-4">
+            {% for emp in employees %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm text-center p-4 h-100 employee-card">
+                    {% if emp.photo and emp.photo != 'default_employee.jpg' %}
+                    <img src="{{ url_for('static', filename='uploads/' + emp.photo) }}"
+                         class="rounded-circle mx-auto mb-3" width="90" height="90" style="object-fit:cover;">
+                    {% else %}
+                    <div class="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center fw-bold fs-3 text-dark mx-auto mb-3"
+                         style="width:90px;height:90px;">
+                        {{ emp.user.first_name[0] }}{{ emp.user.last_name[0] }}
+                    </div>
+                    {% endif %}
+                    <h6 class="fw-bold mb-1">{{ emp.user.full_name }}</h6>
+                    <p class="text-muted small mb-2">{{ emp.specialization or 'Мастер' }}</p>
+                    {% if emp.experience_years %}
+                    <p class="text-muted small mb-2">Опыт: {{ emp.experience_years }} лет</p>
+                    {% endif %}
+                    {% if emp.avg_rating %}
+                    <div class="d-flex justify-content-center gap-1 mb-3">
+                        {% for i in range(1,6) %}
+                        <i class="fas fa-star {% if i <= emp.avg_rating %}text-warning{% else %}text-muted{% endif %} small"></i>
+                        {% endfor %}
+                        <span class="ms-1 small text-muted">{{ emp.avg_rating }}</span>
+                    </div>
+                    {% endif %}
+                    <a href="{{ url_for('client.booking', employee_id=emp.id) }}" class="btn btn-warning btn-sm w-100 fw-bold mt-auto">
+                        Записаться
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Reviews -->
+{% if reviews %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Отзывы клиентов</h2>
+            <p class="text-muted">Что говорят наши клиенты</p>
+        </div>
+        <div class="row g-4">
+            {% for review in reviews %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex gap-1 mb-3">
+                        {% for i in range(1,6) %}
+                        <i class="fas fa-star {% if i <= review.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                    {% if review.comment %}
+                    <p class="text-muted mb-3 flex-grow-1">"{{ review.comment }}"</p>
+                    {% endif %}
+                    <div class="d-flex align-items-center gap-2 mt-auto">
+                        <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center fw-bold text-dark"
+                             style="width:36px;height:36px;font-size:.85rem;flex-shrink:0;">
+                            {{ review.author.first_name[0] }}
+                        </div>
+                        <div>
+                            <div class="fw-medium small">{{ review.author.first_name }} {{ review.author.last_name[0] }}.</div>
+                            <div class="text-muted small">{{ review.booking.service.name }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<section class="py-5" style="background: linear-gradient(135deg, #1a1a2e, #0f3460);">
+    <div class="container text-center text-white">
+        <h2 class="fw-bold mb-3">Готовы записаться?</h2>
+        <p class="lead opacity-75 mb-4">Запишитесь онлайн прямо сейчас и получите скидку 5% на первый визит</p>
+        <div class="d-flex justify-content-center gap-3">
+            {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-warning btn-lg fw-bold px-5">
+                <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+            </a>
+            {% else %}
+            <a href="{{ url_for('client.booking') }}" class="btn btn-warning btn-lg fw-bold px-5">
+                <i class="fas fa-calendar-plus me-2"></i>Записаться
+            </a>
+            {% endif %}
+            <a href="tel:+77271234567" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-phone me-2"></i>Позвонить
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

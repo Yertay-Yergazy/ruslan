@@ -1,0 +1,80 @@
+{% extends "admin/base.html" %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.clients') }}">Клиенты</a></li>
+{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center p-4 mb-3">
+            <div class="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center fw-bold fs-2 text-dark mx-auto mb-3"
+                 style="width:100px;height:100px;">
+                {{ client.first_name[0] }}{{ client.last_name[0] }}
+            </div>
+            <h5 class="fw-bold">{{ client.full_name }}</h5>
+            <p class="text-muted mb-1">{{ client.email }}</p>
+            {% if client.phone %}<p class="text-muted small mb-2">{{ client.phone }}</p>{% endif %}
+            <p class="text-muted small">С нами с {{ client.created_at | format_date }}</p>
+            <span class="badge {% if client.is_active %}bg-success{% else %}bg-danger{% endif %} mb-3">
+                {% if client.is_active %}Активен{% else %}Заблокирован{% endif %}
+            </span>
+            <form method="POST" action="{{ url_for('admin.client_toggle', client_id=client.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn {% if client.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %} w-100">
+                    {% if client.is_active %}Заблокировать{% else %}Активировать{% endif %}
+                </button>
+            </form>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Всего записей</span>
+                    <strong>{{ bookings|length }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Завершено</span>
+                    <strong>{{ bookings|selectattr('status','eq','completed')|list|length }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Отменено</span>
+                    <strong>{{ bookings|selectattr('status','eq','cancelled')|list|length }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h6 class="fw-bold mb-0">История записей</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">№</th>
+                                <th>Услуга</th>
+                                <th>Дата</th>
+                                <th>Сумма</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in bookings %}
+                            <tr onclick="location.href='{{ url_for('admin.booking_detail', booking_id=b.id) }}'" style="cursor:pointer;">
+                                <td class="ps-4 small text-muted">{{ b.booking_number }}</td>
+                                <td class="small">{{ b.service.name }}</td>
+                                <td class="small">{{ b.booking_date | format_date }}</td>
+                                <td class="small fw-medium">{{ b.total_price | format_price }} ₸</td>
+                                <td><span class="badge bg-{{ b.status_badge }}">{{ b.status_display }}</span></td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center text-muted py-4">Записей нет</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

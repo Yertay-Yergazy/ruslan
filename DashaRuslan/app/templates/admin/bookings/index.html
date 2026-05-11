@@ -1,0 +1,141 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Записи клиентов</h4>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Поиск по клиенту, номеру, автомобилю..."
+                       value="{{ search }}">
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">Все статусы</option>
+                    <option value="pending" {% if current_status=='pending' %}selected{% endif %}>Ожидают</option>
+                    <option value="confirmed" {% if current_status=='confirmed' %}selected{% endif %}>Подтверждены</option>
+                    <option value="in_progress" {% if current_status=='in_progress' %}selected{% endif %}>В работе</option>
+                    <option value="completed" {% if current_status=='completed' %}selected{% endif %}>Завершены</option>
+                    <option value="cancelled" {% if current_status=='cancelled' %}selected{% endif %}>Отменены</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="date" class="form-control" value="{{ current_date }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i>Найти
+                </button>
+                <a href="{{ url_for('admin.bookings') }}" class="btn btn-outline-secondary ms-1">Сбросить</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Status Tabs -->
+<div class="d-flex gap-2 mb-3 flex-wrap">
+    <a href="{{ url_for('admin.bookings', status='pending') }}"
+       class="btn btn-sm {% if current_status=='pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+        Ожидают
+    </a>
+    <a href="{{ url_for('admin.bookings', status='confirmed') }}"
+       class="btn btn-sm {% if current_status=='confirmed' %}btn-info{% else %}btn-outline-info{% endif %}">
+        Подтверждены
+    </a>
+    <a href="{{ url_for('admin.bookings', status='in_progress') }}"
+       class="btn btn-sm {% if current_status=='in_progress' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+        В работе
+    </a>
+    <a href="{{ url_for('admin.bookings', status='completed') }}"
+       class="btn btn-sm {% if current_status=='completed' %}btn-success{% else %}btn-outline-success{% endif %}">
+        Завершены
+    </a>
+    <a href="{{ url_for('admin.bookings') }}"
+       class="btn btn-sm {% if not current_status %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+        Все
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">№ записи</th>
+                        <th>Клиент</th>
+                        <th>Услуга / Мастер</th>
+                        <th>Дата и время</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings.items %}
+                    <tr>
+                        <td class="ps-4">
+                            <a href="{{ url_for('admin.booking_detail', booking_id=b.id) }}" class="fw-medium text-decoration-none">
+                                {{ b.booking_number }}
+                            </a>
+                            <div class="text-muted small">{{ b.created_at | format_date }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-medium">{{ b.client.full_name }}</div>
+                            <div class="text-muted small">{{ b.client.phone or b.client.email }}</div>
+                        </td>
+                        <td>
+                            <div class="small fw-medium">{{ b.service.name }}</div>
+                            <div class="text-muted small">{{ b.employee.user.full_name }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-medium">{{ b.booking_date | format_date }}</div>
+                            <div class="text-muted small">{{ b.start_time | format_time }} – {{ b.end_time | format_time }}</div>
+                        </td>
+                        <td class="fw-medium">{{ b.total_price | format_price }} ₸</td>
+                        <td><span class="badge bg-{{ b.status_badge }}">{{ b.status_display }}</span></td>
+                        <td>
+                            <a href="{{ url_for('admin.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center text-muted py-5">Записей не найдено</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if bookings.pages > 1 %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if bookings.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.bookings', page=bookings.prev_num, status=current_status, date=current_date, search=search) }}">‹</a>
+        </li>
+        {% endif %}
+        {% for page in bookings.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+            {% if page %}
+            <li class="page-item {% if page == bookings.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.bookings', page=page, status=current_status, date=current_date, search=search) }}">{{ page }}</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+        {% endfor %}
+        {% if bookings.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.bookings', page=bookings.next_num, status=current_status, date=current_date, search=search) }}">›</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

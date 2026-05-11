@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="bg-dark text-white py-4">
+    <div class="container">
+        <h2 class="fw-bold mb-1">Наши мастера</h2>
+        <p class="text-muted mb-0">Опытные специалисты с профессиональным оборудованием</p>
+    </div>
+</div>
+<div class="container py-5">
+    <div class="row g-4">
+        {% for emp in employees %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100 employee-card text-center p-4">
+                {% if emp.photo and emp.photo != 'default_employee.jpg' %}
+                <img src="{{ url_for('static', filename='uploads/' + emp.photo) }}"
+                     class="rounded-circle mx-auto mb-3" width="100" height="100" style="object-fit:cover;">
+                {% else %}
+                <div class="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center fw-bold fs-2 text-dark mx-auto mb-3"
+                     style="width:100px;height:100px;">
+                    {{ emp.user.first_name[0] }}{{ emp.user.last_name[0] }}
+                </div>
+                {% endif %}
+                <h5 class="fw-bold mb-1">{{ emp.user.full_name }}</h5>
+                <p class="text-muted mb-2">{{ emp.specialization or 'Мастер' }}</p>
+                {% if emp.experience_years %}
+                <p class="text-muted small mb-2"><i class="fas fa-briefcase me-1"></i>Опыт: {{ emp.experience_years }} лет</p>
+                {% endif %}
+                {% if emp.avg_rating %}
+                <div class="d-flex justify-content-center gap-1 mb-3">
+                    {% for i in range(1,6) %}
+                    <i class="fas fa-star {% if i <= emp.avg_rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                    {% endfor %}
+                    <span class="ms-1 small text-muted">{{ emp.avg_rating }} ({{ emp.reviews_count }})</span>
+                </div>
+                {% endif %}
+                {% if emp.bio %}
+                <p class="text-muted small mb-3">{{ emp.bio[:150] }}{% if emp.bio|length > 150 %}...{% endif %}</p>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-1 justify-content-center mb-3">
+                    {% for svc in emp.services[:4] %}
+                    <span class="badge bg-light text-dark border small">{{ svc.name }}</span>
+                    {% endfor %}
+                    {% if emp.services|length > 4 %}
+                    <span class="badge bg-secondary small">+{{ emp.services|length - 4 }}</span>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('client.booking', employee_id=emp.id) }}" class="btn btn-warning fw-bold w-100">
+                    <i class="fas fa-calendar-plus me-2"></i>Записаться
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-user-slash fs-1 text-muted mb-3 d-block opacity-25"></i>
+            <h5 class="text-muted">Мастера временно недоступны</h5>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

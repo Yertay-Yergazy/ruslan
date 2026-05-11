@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('client.my_bookings') }}">Мои записи</a></li>
+            <li class="breadcrumb-item active">{{ booking.booking_number }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <div class="text-muted small mb-1">Запись # {{ booking.booking_number }}</div>
+                            <h3 class="fw-bold mb-0">{{ booking.service.name }}</h3>
+                        </div>
+                        <span class="badge bg-{{ booking.status_badge }} fs-6 px-3 py-2">{{ booking.status_display }}</span>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-2">Мастер</h6>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center fw-bold text-dark"
+                                     style="width:50px;height:50px;flex-shrink:0;">
+                                    {{ booking.employee.user.first_name[0] }}{{ booking.employee.user.last_name[0] }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ booking.employee.user.full_name }}</div>
+                                    <div class="text-muted small">{{ booking.employee.specialization or 'Мастер' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-2">Дата и время</h6>
+                            <div class="fw-bold fs-5">{{ booking.booking_date | format_date }}</div>
+                            <div class="text-muted">{{ booking.start_time | format_time }} – {{ booking.end_time | format_time }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-2">Стоимость</h6>
+                            <div class="fw-bold fs-4 text-success">{{ booking.total_price | format_price }} ₸</div>
+                        </div>
+                        {% if booking.car_info %}
+                        <div class="col-md-6">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-2">Автомобиль</h6>
+                            <div><i class="fas fa-car text-muted me-2"></i>{{ booking.car_info }}</div>
+                        </div>
+                        {% endif %}
+                        {% if booking.notes %}
+                        <div class="col-12">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-2">Ваши пожелания</h6>
+                            <div class="bg-light rounded p-3">{{ booking.notes }}</div>
+                        </div>
+                        {% endif %}
+                        {% if booking.admin_notes %}
+                        <div class="col-12">
+                            <h6 class="text-muted text-uppercase small fw-bold mb-2">Комментарий сервиса</h6>
+                            <div class="bg-info-subtle rounded p-3">{{ booking.admin_notes }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review section -->
+            {% if booking.review %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Ваш отзыв</h5>
+                    <div class="d-flex gap-1 mb-2">
+                        {% for i in range(1,6) %}
+                        <i class="fas fa-star {% if i <= booking.review.rating %}text-warning{% else %}text-muted{% endif %} fs-5"></i>
+                        {% endfor %}
+                        <span class="ms-2 fw-bold">{{ booking.review.rating }}/5</span>
+                    </div>
+                    {% if booking.review.comment %}
+                    <p class="text-muted">{{ booking.review.comment }}</p>
+                    {% endif %}
+                    <div class="text-muted small">{{ booking.review.created_at | format_date }}</div>
+                </div>
+            </div>
+            {% elif review_form %}
+            <div class="card border-warning border-2 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-star text-warning me-2"></i>Оставьте отзыв
+                    </h5>
+                    <form method="POST" action="{{ url_for('client.booking_review', booking_id=booking.id) }}">
+                        {{ review_form.hidden_tag() }}
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Ваша оценка</label>
+                            <div class="star-rating d-flex gap-2">
+                                {% for i in range(1,6) %}
+                                <i class="fas fa-star rating-star fs-2 text-muted" data-value="{{ i }}" style="cursor:pointer;"></i>
+                                {% endfor %}
+                            </div>
+                            {{ review_form.rating(id="ratingInput", class="d-none") }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Комментарий</label>
+                            {{ review_form.comment(class="form-control", rows=4, placeholder="Опишите ваш опыт...") }}
+                        </div>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">
+                            <i class="fas fa-paper-plane me-2"></i>Отправить отзыв
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Действия</h6>
+                    <div class="d-flex flex-column gap-2">
+                        {% if booking.can_cancel() %}
+                        <form method="POST" action="{{ url_for('client.booking_cancel', booking_id=booking.id) }}"
+                              onsubmit="return confirm('Вы уверены, что хотите отменить запись?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-times me-2"></i>Отменить запись
+                            </button>
+                        </form>
+                        {% endif %}
+                        <a href="{{ url_for('client.booking') }}" class="btn btn-warning w-100">
+                            <i class="fas fa-calendar-plus me-2"></i>Записаться снова
+                        </a>
+                        <a href="{{ url_for('client.my_bookings') }}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left me-2"></i>К списку записей
+                        </a>
+                    </div>
+
+                    <hr>
+                    <div class="text-muted small">
+                        <div class="mb-1">Создана: {{ booking.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                    </div>
+
+                    <hr>
+                    <h6 class="fw-bold mb-2">Нужна помощь?</h6>
+                    <a href="tel:+77271234567" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-phone me-2"></i>Позвонить
+                    </a>
+                    <a href="{{ url_for('client.contacts') }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-envelope me-2"></i>Написать нам
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Star rating
+const stars = document.querySelectorAll('.rating-star');
+const ratingInput = document.getElementById('ratingInput');
+if (stars.length) {
+    stars.forEach(star => {
+        star.addEventListener('mouseover', () => {
+            const val = parseInt(star.dataset.value);
+            stars.forEach((s, i) => {
+                s.classList.toggle('text-warning', i < val);
+                s.classList.toggle('text-muted', i >= val);
+            });
+        });
+        star.addEventListener('click', () => {
+            const val = star.dataset.value;
+            ratingInput.value = val;
+            stars.forEach((s, i) => {
+                s.classList.toggle('text-warning', i < parseInt(val));
+                s.classList.toggle('text-muted', i >= parseInt(val));
+            });
+        });
+    });
+    document.querySelector('.star-rating')?.addEventListener('mouseleave', () => {
+        const val = parseInt(ratingInput.value) || 0;
+        stars.forEach((s, i) => {
+            s.classList.toggle('text-warning', i < val);
+            s.classList.toggle('text-muted', i >= val);
+        });
+    });
+}
+</script>
+{% endblock %}

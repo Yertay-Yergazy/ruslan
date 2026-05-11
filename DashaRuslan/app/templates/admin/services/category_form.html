@@ -1,0 +1,67 @@
+{% extends "admin/base.html" %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.categories') }}">Категории</a></li>
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h5 class="fw-bold mb-0">{{ title }}</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Название *</label>
+                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                        {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">URL slug *</label>
+                        {{ form.slug(class="form-control" + (" is-invalid" if form.slug.errors else ""), placeholder="napr-to-obsl") }}
+                        {% for e in form.slug.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Описание</label>
+                        {{ form.description(class="form-control", rows=3) }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Font Awesome иконка</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i id="iconPreview" class="fas fa-wrench"></i></span>
+                            {{ form.icon(class="form-control", id="iconInput", placeholder="fa-wrench") }}
+                        </div>
+                        <small class="text-muted">Напр.: fa-wrench, fa-car, fa-oil-can, fa-tire, fa-paint-brush</small>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Порядок сортировки</label>
+                        {{ form.sort_order(class="form-control") }}
+                    </div>
+                    <div class="form-check form-switch mb-4">
+                        {{ form.is_active(class="form-check-input", role="switch") }}
+                        <label class="form-check-label fw-medium">Активна</label>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary fw-bold px-4">
+                            <i class="fas fa-save me-2"></i>Сохранить
+                        </button>
+                        <a href="{{ url_for('admin.categories') }}" class="btn btn-outline-secondary px-4">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const input = document.getElementById('iconInput');
+const preview = document.getElementById('iconPreview');
+if (input) {
+    input.addEventListener('input', () => {
+        preview.className = 'fas ' + (input.value || 'fa-wrench');
+    });
+}
+</script>
+{% endblock %}

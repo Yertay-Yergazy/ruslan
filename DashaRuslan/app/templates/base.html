@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }} | АвтоСервис Про{% endblock %}</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('client.index') }}">
+            <i class="fas fa-car-wrench fs-4 text-warning"></i>
+            <span class="fw-bold">АвтоСервис Про</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'client.index' %}active{% endif %}"
+                       href="{{ url_for('client.index') }}">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and 'service' in request.endpoint %}active{% endif %}"
+                       href="{{ url_for('client.services') }}">Услуги</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'client.employees' %}active{% endif %}"
+                       href="{{ url_for('client.employees') }}">Мастера</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'client.about' %}active{% endif %}"
+                       href="{{ url_for('client.about') }}">О нас</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'client.contacts' %}active{% endif %}"
+                       href="{{ url_for('client.contacts') }}">Контакты</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin() %}
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="{{ url_for('admin.dashboard') }}">
+                            <i class="fas fa-cog me-1"></i>Панель управления
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>{{ current_user.first_name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                <i class="fas fa-user me-2"></i>Мой профиль</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('client.my_bookings') }}">
+                                <i class="fas fa-calendar-check me-2"></i>Мои записи</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Выйти</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Войти</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-warning btn-sm ms-2 px-3" href="{{ url_for('auth.register') }}">Регистрация</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+            {% if category == 'success' %}<i class="fas fa-check-circle me-2"></i>
+            {% elif category == 'danger' %}<i class="fas fa-exclamation-circle me-2"></i>
+            {% elif category == 'warning' %}<i class="fas fa-exclamation-triangle me-2"></i>
+            {% else %}<i class="fas fa-info-circle me-2"></i>{% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Main content -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-light py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="fas fa-car-wrench fs-4 text-warning"></i>
+                    <h5 class="mb-0 fw-bold">АвтоСервис Про</h5>
+                </div>
+                <p class="text-muted small">Профессиональный автосервис с современным оборудованием и опытными мастерами. Ваш автомобиль в надёжных руках.</p>
+                <div class="d-flex gap-3 mt-3">
+                    <a href="#" class="text-muted fs-5"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-muted fs-5"><i class="fab fa-telegram"></i></a>
+                    <a href="#" class="text-muted fs-5"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <h6 class="text-warning fw-bold mb-3">Навигация</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-1"><a href="{{ url_for('client.services') }}" class="text-muted text-decoration-none">Услуги</a></li>
+                    <li class="mb-1"><a href="{{ url_for('client.employees') }}" class="text-muted text-decoration-none">Мастера</a></li>
+                    <li class="mb-1"><a href="{{ url_for('client.about') }}" class="text-muted text-decoration-none">О нас</a></li>
+                    <li class="mb-1"><a href="{{ url_for('client.contacts') }}" class="text-muted text-decoration-none">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="text-warning fw-bold mb-3">Услуги</h6>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-1">Техническое обслуживание</li>
+                    <li class="mb-1">Кузовной ремонт</li>
+                    <li class="mb-1">Диагностика</li>
+                    <li class="mb-1">Шиномонтаж</li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="text-warning fw-bold mb-3">Контакты</h6>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-2"><i class="fas fa-map-marker-alt text-warning me-2"></i>г. Алматы, ул. Байзакова, 280</li>
+                    <li class="mb-2"><i class="fas fa-phone text-warning me-2"></i>+7 (727) 123-45-67</li>
+                    <li class="mb-2"><i class="fas fa-envelope text-warning me-2"></i>info@autoservice.kz</li>
+                    <li class="mb-2"><i class="fas fa-clock text-warning me-2"></i>Пн–Пт: 8:00–20:00<br><span class="ms-4">Сб–Вс: 9:00–18:00</span></li>
+                </ul>
+            </div>
+        </div>
+        <hr class="border-secondary mt-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <p class="mb-0 small text-muted">&copy; {{ now.year if now else 2024 }} АвтоСервис Про. Все права защищены.</p>
+            <p class="mb-0 small text-muted">Разработано в рамках дипломного проекта</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

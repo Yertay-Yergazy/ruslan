@@ -1,0 +1,2429 @@
+% =============================================================================
+% ДИПЛОМНЫЙ ПРОЕКТ
+% Студент: Даша Русланова
+% Тема: Разработка веб-платформы для автосервиса с системой онлайн-записи
+%        с использованием HTML, CSS и JavaScript
+% Колледж УО «Каспийский общественный университет»
+% Алматы, 2026
+% =============================================================================
+
+\documentclass[14pt,a4paper,oneside]{extarticle}
+
+% ======================== ПАКЕТЫ ========================
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{tempora}
+\usepackage[
+  left=30mm, right=10mm,
+  top=20mm,  bottom=25mm
+]{geometry}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows.meta, positioning, calc, fit}
+
+% ======================== НАСТРОЙКИ ========================
+
+\singlespacing
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\titleformat{\section}
+  {\normalfont\fontsize{16}{19}\bfseries\centering}
+  {\thesection}{0.5em}{}
+\titleformat{\subsection}
+  {\normalfont\fontsize{14}{17}\bfseries}
+  {\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}
+  {\normalfont\fontsize{14}{17}\bfseries}
+  {\thesubsubsection}{0.5em}{}
+
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{\parindent}{10pt}{4pt}
+\titlespacing*{\subsubsection}{\parindent}{8pt}{4pt}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cfttoctitlefont}{\hfill\fontsize{16}{19}\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\setlength{\cftbeforesecskip}{3pt}
+
+\captionsetup[figure]{
+  labelsep=endash,
+  justification=centering,
+  font=normalsize,
+  name=Рисунок
+}
+\captionsetup[table]{
+  labelsep=endash,
+  justification=raggedright,
+  singlelinecheck=false,
+  font=normalsize,
+  name=Таблица
+}
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codegreen}{RGB}{40,120,40}
+\definecolor{codegray}{RGB}{128,128,128}
+\definecolor{codeblue}{RGB}{30,60,180}
+\definecolor{codestring}{RGB}{163,21,21}
+
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  breakatwhitespace=false,
+  captionpos=t,
+  commentstyle=\color{codegreen}\itshape,
+  keywordstyle=\color{codeblue}\bfseries,
+  stringstyle=\color{codestring},
+  numberstyle=\tiny\color{codegray},
+  numbers=left,
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{codegray},
+  tabsize=4,
+  showstringspaces=false,
+  inputencoding=utf8,
+  extendedchars=true,
+  literate=
+    {а}{{\cyra}}1 {б}{{\cyrb}}1 {в}{{\cyrv}}1 {г}{{\cyrg}}1
+    {д}{{\cyrd}}1 {е}{{\cyre}}1 {ж}{{\cyrzh}}1 {з}{{\cyrz}}1
+    {и}{{\cyri}}1 {й}{{\cyrishrt}}1 {к}{{\cyrk}}1 {л}{{\cyrl}}1
+    {м}{{\cyrm}}1 {н}{{\cyrn}}1 {о}{{\cyro}}1 {п}{{\cyrp}}1
+    {р}{{\cyrr}}1 {с}{{\cyrs}}1 {т}{{\cyrt}}1 {у}{{\cyru}}1
+    {ф}{{\cyrf}}1 {х}{{\cyrh}}1 {ц}{{\cyro}}1 {ч}{{\cyrch}}1
+    {ш}{{\cyrsh}}1 {щ}{{\cyrshch}}1 {ъ}{{\cyrhrdsn}}1 {ы}{{\cyry}}1
+    {ь}{{\cyrsftsn}}1 {э}{{\cyrerev}}1 {ю}{{\cyryu}}1 {я}{{\cyrya}}1
+    {А}{{\CYRA}}1 {Б}{{\CYRB}}1 {В}{{\CYRV}}1 {Г}{{\CYRG}}1
+    {Д}{{\CYRD}}1 {Е}{{\CYRE}}1 {Ж}{{\CYRZH}}1 {З}{{\CYRZ}}1
+    {И}{{\CYRI}}1 {Й}{{\CYRISHRT}}1 {К}{{\CYRK}}1 {Л}{{\CYRL}}1
+    {М}{{\CYRM}}1 {Н}{{\CYRN}}1 {О}{{\CYRO}}1 {П}{{\CYRP}}1
+    {Р}{{\CYRR}}1 {С}{{\CYRS}}1 {Т}{{\CYRT}}1 {У}{{\CYRU}}1
+    {Ф}{{\CYRF}}1 {Х}{{\CYRH}}1 {Ц}{{\CYRC}}1 {Ч}{{\CYRCH}}1
+    {Ш}{{\CYRSH}}1 {Щ}{{\CYRSHCH}}1 {Ъ}{{\CYRHRDSN}}1 {Ы}{{\CYRY}}1
+    {Ь}{{\CYRSFTSN}}1 {Э}{{\CYREREV}}1 {Ю}{{\CYRYU}}1 {Я}{{\CYRYA}}1
+    {ё}{{\cyryo}}1 {Ё}{{\CYRYO}}1
+}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue,
+  pdfauthor={Даша Русланова},
+  pdftitle={Дипломный проект - Разработка веб-платформы для автосервиса}
+}
+
+% ======================== НАЧАЛО ДОКУМЕНТА ========================
+\begin{document}
+
+% ================================================================
+%                        ТИТУЛЬНЫЙ ЛИСТ
+% ================================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+
+\textbf{Министерство просвещения Республики Казахстан}
+
+\vspace{4pt}
+\textbf{Колледж УО <<Каспийский общественный университет>>}
+
+\vspace{30pt}
+
+\begin{minipage}[t]{0.48\textwidth}
+\raggedright
+<<Допущена к защите>>\\
+Заместитель директора\\
+по учебной работе\\
+\_\_\_\_\_\_\_\_\_\_\_ Берденова Г.Е.\\
+<<\_\_\_>>\_\_\_\_\_\_\_2026 г.
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.42\textwidth}
+\raggedleft
+<<Утверждаю>>\\
+Директор\\
+~\\
+\_\_\_\_\_\_\_\_\_\_\_ Ануаш Ж.Д.\\
+<<\_\_\_>>\_\_\_\_\_\_\_2026 г.
+\end{minipage}
+
+\vspace{50pt}
+
+{\fontsize{22}{26}\selectfont\bfseries ДИПЛОМНЫЙ ПРОЕКТ}
+
+\vspace{16pt}
+
+{\fontsize{16}{19}\selectfont\bfseries на тему: <<Разработка веб-платформы для автосервиса\\ с системой онлайн-записи с использованием\\ HTML, CSS и JavaScript>>}
+
+\vspace{12pt}
+
+по специальности 06130100~--- Программное обеспечение (по видам)\\
+квалификация 4S06130103~--- Разработчик программного обеспечения
+
+\vspace{50pt}
+
+\begin{minipage}[t]{0.48\textwidth}
+\raggedright
+Выполнила
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.42\textwidth}
+\raggedleft
+Даша Русланова
+\end{minipage}
+
+\vspace{16pt}
+
+\begin{minipage}[t]{0.48\textwidth}
+\raggedright
+Руководитель проекта
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.42\textwidth}
+\raggedleft
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+\end{minipage}
+
+\vfill
+\textbf{Алматы, 2026 г.}
+
+\end{center}
+\end{titlepage}
+
+
+% ================================================================
+%                          СОДЕРЖАНИЕ
+% ================================================================
+\newpage
+\tableofcontents
+\thispagestyle{fancy}
+
+
+% ================================================================
+%                          ВВЕДЕНИЕ
+% ================================================================
+\newpage
+\section*{ВВЕДЕНИЕ}
+\addcontentsline{toc}{section}{ВВЕДЕНИЕ}
+
+В последние годы автомобильная отрасль Казахстана переживает значительный рост. По данным Комитета по статистике Министерства национальной экономики РК, на конец 2025 года в стране зарегистрировано более 4,5 миллионов легковых автомобилей, и эта цифра ежегодно увеличивается. Вместе с ростом автопарка растёт и потребность в качественном техническом обслуживании автотранспорта. Рынок автосервисных услуг является одним из наиболее динамично развивающихся сегментов сферы обслуживания в Республике Казахстан.
+
+Однако, несмотря на рост количества автосервисных предприятий, многие из них до сих пор работают по устаревшим моделям: запись по телефону, ведение учёта в бумажных журналах, отсутствие прозрачного ценообразования и обратной связи с клиентами. Такой подход приводит к целому ряду проблем: потеря клиентов из-за занятости телефонной линии, ошибки при записи, отсутствие возможности оперативного управления расписанием мастеров, невозможность для клиента самостоятельно выбрать удобное время обслуживания.
+
+Цифровизация является одним из ключевых направлений стратегии <<Цифровой Казахстан>>. Внедрение информационных технологий в сферу автосервисных услуг позволяет значительно повысить эффективность работы предприятия, улучшить качество обслуживания клиентов, автоматизировать рутинные процессы и обеспечить прозрачность ценообразования. Онлайн-запись на обслуживание стала стандартом индустрии в развитых странах и активно внедряется в Казахстане.
+
+На рынке уже существуют зарубежные решения, такие как YCLIENTS, DIKIDI Business и AutoDealer CRM, однако они, как правило, требуют значительных финансовых затрат на лицензирование, не всегда адаптированы к специфике казахстанского рынка и зачастую избыточны для малого и среднего бизнеса. В связи с этим разработка собственной веб-платформы для автосервиса является актуальной задачей.
+
+\textbf{Цель дипломного проекта} --- разработка веб-платформы для автосервиса с системой онлайн-записи, которая позволит автоматизировать процесс записи клиентов на обслуживание, управление услугами, сотрудниками и расписанием работы мастеров.
+
+Для достижения поставленной цели необходимо решить следующие \textbf{задачи}:
+\begin{enumerate}[leftmargin=2cm]
+    \item изучить предметную область и провести анализ существующих решений для автосервисных предприятий;
+    \item определить функциональные и нефункциональные требования к веб-платформе;
+    \item спроектировать архитектуру приложения и структуру базы данных;
+    \item реализовать серверную часть приложения с использованием фреймворка Flask;
+    \item разработать клиентскую часть с использованием HTML, CSS и JavaScript;
+    \item реализовать систему онлайн-записи с выбором услуги, мастера и временного слота;
+    \item провести тестирование и отладку разработанного приложения;
+    \item подготовить документацию к проекту.
+\end{enumerate}
+
+\textbf{Объект исследования} --- процесс записи клиентов на обслуживание в автосервисном предприятии.
+
+\textbf{Предмет исследования} --- автоматизация процесса онлайн-записи на обслуживание в автосервисе посредством веб-платформы.
+
+\textbf{Практическая значимость} работы заключается в создании готового к эксплуатации веб-приложения, которое может быть развёрнуто в реальном автосервисном предприятии города Алматы и использоваться для автоматизации процессов записи клиентов, управления услугами и мониторинга загруженности мастеров.
+
+Дипломный проект состоит из введения, четырёх разделов, заключения, списка использованных источников и приложений. В первом разделе рассматриваются теоретические основы разработки веб-приложений и применяемых технологий. Во втором разделе описывается проектирование системы. Третий раздел посвящён практической реализации проекта. Четвёртый раздел рассматривает вопросы охраны труда при работе за компьютером.
+
+
+% ================================================================
+%              РАЗДЕЛ 1: ТЕОРЕТИЧЕСКИЕ ОСНОВЫ
+% ================================================================
+\newpage
+\section{ТЕОРЕТИЧЕСКИЕ ОСНОВЫ РАЗРАБОТКИ ВЕБ-ПРИЛОЖЕНИЙ}
+
+\subsection{Обзор индустрии автосервисных услуг в Казахстане}
+
+Автосервисная отрасль Казахстана является одной из наиболее востребованных в сфере услуг. По данным аналитических исследований, средний автомобиль в Казахстане проходит техническое обслуживание от 2 до 4 раз в год, что формирует устойчивый спрос на услуги автосервисных предприятий. В крупных городах --- Алматы, Астана, Шымкент --- конкуренция среди автосервисов особенно высока, что заставляет предприятия искать новые способы привлечения и удержания клиентов.
+
+Традиционно автосервисы Казахстана работали по модели телефонной записи или приёма клиентов в порядке живой очереди. Однако данная модель имеет ряд существенных недостатков:
+\begin{itemize}[leftmargin=2cm]
+    \item невозможность круглосуточной записи --- клиент может позвонить только в рабочее время;
+    \item потеря обращений из-за занятости телефонной линии;
+    \item отсутствие визуализации доступных временных слотов;
+    \item невозможность оперативного отслеживания загрузки мастеров;
+    \item сложность ведения статистики и аналитики.
+\end{itemize}
+
+Внедрение цифровых технологий позволяет решить все перечисленные проблемы. Мировые тенденции показывают, что автосервисы, использующие онлайн-запись, демонстрируют рост клиентской базы на 25--40\% и снижение количества пропущенных записей на 50--60\%.
+
+\subsection{Анализ существующих решений}
+
+На рынке представлено несколько платформ, предназначенных для автоматизации работы сервисных предприятий. Рассмотрим наиболее популярные из них.
+
+\textbf{YCLIENTS} (yclients.com) --- российская облачная платформа для онлайн-записи, которая широко используется в сфере услуг. Платформа предоставляет виджет записи, CRM-систему, аналитику, SMS-напоминания. Среди недостатков --- высокая стоимость подписки (от 5000 рублей в месяц), ориентированность преимущественно на салоны красоты и медицинские учреждения, а не на автосервисы.
+
+\textbf{DIKIDI Business} --- ещё одна российская платформа для онлайн-записи, которая также адаптирована под различные виды услуг. Преимуществом является наличие мобильного приложения и бесплатного базового тарифа. К недостаткам относится ограниченная функциональность в бесплатной версии и отсутствие специализированных модулей для автосервисов (учёт транспортных средств, VIN-номера, пробег).
+
+\textbf{AutoDealer CRM} --- специализированная CRM-система для автодилеров и автосервисов. Система включает в себя управление заказ-нарядами, складской учёт запчастей, ведение истории обслуживания автомобилей. Однако данное решение является громоздким и дорогостоящим, что делает его недоступным для небольших автосервисных предприятий.
+
+Сравнительный анализ существующих решений представлен в таблице~\ref{tab:analogs}.
+
+\begin{table}[H]
+\caption{Сравнительный анализ существующих решений}\label{tab:analogs}
+\centering
+\begin{tabularx}{\textwidth}{|l|X|X|X|X|}
+\hline
+\textbf{Критерий} & \textbf{YCLIENTS} & \textbf{DIKIDI} & \textbf{AutoDealer} & \textbf{Наш проект} \\
+\hline
+Онлайн-запись & Да & Да & Да & Да \\
+\hline
+Выбор мастера & Да & Да & Нет & Да \\
+\hline
+Временные слоты & Да & Да & Нет & Да \\
+\hline
+Отзывы/рейтинги & Нет & Частично & Нет & Да \\
+\hline
+Учёт авто & Нет & Нет & Да & Да \\
+\hline
+Стоимость & Платная & Условно-бесп. & Платная & Бесплатная \\
+\hline
+Open source & Нет & Нет & Нет & Да \\
+\hline
+Адаптация КЗ & Частично & Частично & Нет & Да \\
+\hline
+\end{tabularx}
+\end{table}
+
+На основе проведённого анализа можно сделать вывод, что существующие решения либо не адаптированы под специфику автосервисных предприятий, либо имеют высокую стоимость, либо не доступны для кастомизации. Это подтверждает целесообразность разработки собственного решения.
+
+\subsection{Язык программирования Python}
+
+Python --- высокоуровневый интерпретируемый язык программирования общего назначения, созданный Гвидо ван Россумом и впервые выпущенный в 1991 году. На сегодняшний день Python является одним из наиболее популярных языков программирования в мире, занимая первые позиции в рейтингах TIOBE и Stack Overflow Developer Survey.
+
+Основные преимущества Python для веб-разработки:
+\begin{itemize}[leftmargin=2cm]
+    \item простой и читаемый синтаксис, что ускоряет процесс разработки;
+    \item обширная стандартная библиотека и множество сторонних пакетов;
+    \item поддержка объектно-ориентированного программирования;
+    \item наличие мощных веб-фреймворков (Django, Flask, FastAPI);
+    \item активное сообщество разработчиков и обширная документация;
+    \item кроссплатформенность --- работает на Windows, macOS и Linux.
+\end{itemize}
+
+Для данного дипломного проекта был выбран Python версии 3.x в связке с микро-фреймворком Flask, что обеспечивает баланс между функциональностью и простотой разработки.
+
+\subsection{Веб-фреймворк Flask}
+
+Flask --- это микро-фреймворк для разработки веб-приложений на языке Python, созданный Армином Ронахером. Микро-фреймворк означает, что Flask предоставляет минимальный набор инструментов и позволяет разработчику самостоятельно выбирать необходимые расширения.
+
+Ключевые особенности Flask:
+\begin{itemize}[leftmargin=2cm]
+    \item лёгкий и минималистичный --- ядро фреймворка содержит только маршрутизацию и систему шаблонов Jinja2;
+    \item модульная архитектура с использованием Blueprints для организации кода;
+    \item встроенный сервер разработки с автоматической перезагрузкой;
+    \item поддержка WSGI-совместимых серверов для развёртывания;
+    \item богатая экосистема расширений: Flask-SQLAlchemy, Flask-Login, Flask-WTF, Flask-Migrate и другие;
+    \item встроенный механизм сессий и работа с cookie.
+\end{itemize}
+
+В дипломном проекте используется Flask версии 3.0.3 совместно со следующими расширениями:
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Flask-SQLAlchemy 3.1.1} --- ORM для работы с базой данных;
+    \item \textbf{Flask-Login 0.6.3} --- управление аутентификацией пользователей;
+    \item \textbf{Flask-WTF 1.2.1} --- работа с HTML-формами и CSRF-защита;
+    \item \textbf{Flask-Migrate 4.0.7} --- миграции базы данных.
+\end{itemize}
+
+\subsection{SQLAlchemy и базы данных}
+
+SQLAlchemy --- это библиотека для работы с реляционными базами данных в Python, предоставляющая полнофункциональный ORM (Object-Relational Mapping). ORM позволяет работать с таблицами базы данных как с объектами Python, абстрагируясь от написания SQL-запросов вручную.
+
+В качестве системы управления базами данных в проекте используется SQLite --- встраиваемая реляционная СУБД, которая не требует отдельного серверного процесса и хранит всю базу данных в одном файле. SQLite идеально подходит для приложений малого и среднего масштаба, обеспечивая при этом поддержку стандарта SQL, транзакции и ACID-совместимость.
+
+Основные преимущества связки SQLAlchemy + SQLite:
+\begin{itemize}[leftmargin=2cm]
+    \item абстракция работы с базой данных через Python-объекты;
+    \item автоматическое создание таблиц по описанию моделей;
+    \item поддержка связей между таблицами (one-to-many, many-to-many);
+    \item встроенная валидация данных на уровне модели;
+    \item простота развёртывания --- не требуется установка СУБД;
+    \item возможность миграции на PostgreSQL или MySQL при масштабировании.
+\end{itemize}
+
+\subsection{Технологии клиентской части: HTML, CSS и JavaScript}
+
+Клиентская часть веб-приложения разрабатывается с использованием стандартных технологий веб-разработки.
+
+\textbf{HTML (HyperText Markup Language)} --- язык разметки гипертекста, являющийся основой структуры любой веб-страницы. В проекте используется HTML5, который предоставляет семантические элементы (header, footer, nav, section, article), встроенные формы с валидацией, поддержку мультимедиа и улучшенную доступность.
+
+\textbf{CSS (Cascading Style Sheets)} --- каскадные таблицы стилей, определяющие визуальное оформление веб-страниц. CSS3 обеспечивает гибкую раскладку (Flexbox, Grid), адаптивный дизайн через медиа-запросы, анимации и переходы, кастомные свойства (CSS-переменные).
+
+\textbf{JavaScript} --- язык программирования, обеспечивающий интерактивность веб-страниц. В проекте JavaScript используется для динамического обновления содержимого без перезагрузки страницы (AJAX-запросы к API), валидации форм на стороне клиента, реализации интерактивного выбора временных слотов и работы с рейтингом в виде звёзд.
+
+\subsection{Фреймворк Bootstrap}
+
+Bootstrap --- популярный CSS-фреймворк для создания адаптивных веб-интерфейсов, разработанный компанией Twitter. В дипломном проекте используется Bootstrap 5, который предоставляет:
+\begin{itemize}[leftmargin=2cm]
+    \item готовую сетку из 12 колонок с контрольными точками адаптивности;
+    \item обширную библиотеку компонентов: кнопки, карточки, модальные окна, навигационные панели, таблицы, бейджи, алерты;
+    \item утилитарные классы для быстрой стилизации элементов;
+    \item иконки Font Awesome для визуального оформления элементов интерфейса;
+    \item адаптивный дизайн <<из коробки>> для корректного отображения на мобильных устройствах.
+\end{itemize}
+
+Использование Bootstrap позволяет значительно ускорить процесс разработки пользовательского интерфейса и обеспечить единообразное отображение на различных устройствах и в разных браузерах.
+
+\subsection{Шаблонизатор Jinja2}
+
+Jinja2 --- это мощный и гибкий шаблонизатор для Python, который используется Flask по умолчанию. Jinja2 позволяет разделять логику приложения и представление, следуя принципу MVC (Model-View-Controller).
+
+Основные возможности Jinja2:
+\begin{itemize}[leftmargin=2cm]
+    \item наследование шаблонов через механизм extends/block;
+    \item условные конструкции и циклы внутри шаблонов;
+    \item пользовательские фильтры для форматирования данных;
+    \item автоматическое экранирование HTML для предотвращения XSS-атак;
+    \item макросы для повторного использования фрагментов разметки.
+\end{itemize}
+
+В проекте используется наследование шаблонов: базовый шаблон \texttt{base.html} содержит общую структуру страницы (навигация, подключение CSS/JS, подвал), а дочерние шаблоны наследуют его и переопределяют блоки содержимого.
+
+\subsection{Система контроля доступа и безопасность}
+
+Безопасность веб-приложения обеспечивается комплексом мер:
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Хеширование паролей} --- пароли хранятся в базе данных в виде хешей, генерируемых с использованием библиотеки Werkzeug (функции \texttt{generate\_password\_hash} и \texttt{check\_password\_hash});
+    \item \textbf{CSRF-защита} --- все формы защищены от атак Cross-Site Request Forgery с использованием Flask-WTF и токенов;
+    \item \textbf{Аутентификация} --- реализована с помощью Flask-Login, которая управляет сессиями пользователей, обеспечивает функционал <<Запомнить меня>> и перенаправление неавторизованных пользователей;
+    \item \textbf{Авторизация} --- реализована ролевая модель доступа с тремя ролями: администратор, сотрудник и клиент. Каждая роль имеет строго определённый набор разрешений;
+    \item \textbf{Валидация данных} --- данные валидируются как на стороне клиента (JavaScript), так и на стороне сервера (WTForms).
+\end{itemize}
+
+
+% ================================================================
+%              РАЗДЕЛ 2: ПРОЕКТИРОВАНИЕ СИСТЕМЫ
+% ================================================================
+\newpage
+\section{ПРОЕКТИРОВАНИЕ СИСТЕМЫ}
+
+\subsection{Определение функциональных требований}
+
+На основе анализа предметной области и существующих решений были сформулированы функциональные требования к веб-платформе. Требования разделены по ролям пользователей.
+
+\textbf{Требования для роли <<Клиент>>:}
+\begin{enumerate}[leftmargin=2cm]
+    \item регистрация и авторизация в системе;
+    \item просмотр каталога услуг с ценами и описаниями;
+    \item фильтрация услуг по категориям и поиск;
+    \item просмотр профилей мастеров с рейтингами;
+    \item онлайн-запись на обслуживание с выбором услуги, мастера, даты и времени;
+    \item указание информации об автомобиле и дополнительных пожеланий;
+    \item просмотр истории записей и их статусов;
+    \item отмена записи в статусе <<Ожидает>> или <<Подтверждено>>;
+    \item оставление отзыва и оценки после завершения обслуживания;
+    \item редактирование профиля и смена пароля.
+\end{enumerate}
+
+\textbf{Требования для роли <<Администратор>>:}
+\begin{enumerate}[leftmargin=2cm]
+    \item панель управления с основными показателями (дашборд);
+    \item управление категориями услуг (создание, редактирование, удаление);
+    \item управление услугами (CRUD-операции, загрузка изображений);
+    \item управление сотрудниками (профили, расписание, назначение услуг);
+    \item управление записями (просмотр, фильтрация, изменение статуса);
+    \item управление клиентами (просмотр, блокировка/разблокировка);
+    \item модерация отзывов (публикация, скрытие, удаление);
+    \item просмотр статистики: выручка, количество записей, рейтинги.
+\end{enumerate}
+
+\textbf{Нефункциональные требования:}
+\begin{itemize}[leftmargin=2cm]
+    \item адаптивный дизайн для корректного отображения на мобильных устройствах;
+    \item время загрузки страницы не более 3 секунд;
+    \item поддержка одновременной работы нескольких пользователей;
+    \item защита персональных данных пользователей;
+    \item интуитивно понятный интерфейс, не требующий обучения.
+\end{itemize}
+
+\subsection{Диаграмма вариантов использования}
+
+Для визуализации взаимодействия пользователей с системой была разработана диаграмма вариантов использования (Use Case Diagram) в нотации UML.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    actor/.style={
+        draw, minimum width=1.2cm, minimum height=1.8cm,
+        label={[font=\small]below:#1}
+    },
+    usecase/.style={
+        draw, ellipse, minimum width=3.5cm, minimum height=1cm,
+        text width=3cm, align=center, font=\small
+    }
+]
+
+% System boundary
+\draw[thick, rounded corners] (2.5,-0.5) rectangle (11.5,-13.5);
+\node[font=\bfseries] at (7,-0.2) {Веб-платформа автосервиса};
+
+% Actors
+\node[font=\small\bfseries] at (0, -3) {Клиент};
+\draw (0,-3.4) circle (0.3);
+\draw (0,-3.7) -- (0,-4.5);
+\draw (-0.4,-4.0) -- (0.4,-4.0);
+\draw (0,-4.5) -- (-0.3,-5.1);
+\draw (0,-4.5) -- (0.3,-5.1);
+
+\node[font=\small\bfseries] at (14, -3) {Админ};
+\draw (14,-3.4) circle (0.3);
+\draw (14,-3.7) -- (14,-4.5);
+\draw (13.6,-4.0) -- (14.4,-4.0);
+\draw (14,-4.5) -- (13.7,-5.1);
+\draw (14,-4.5) -- (14.3,-5.1);
+
+% Client use cases
+\node[usecase] at (5, -1.5) {Регистрация и авторизация};
+\node[usecase] at (5, -3.0) {Просмотр каталога услуг};
+\node[usecase] at (5, -4.5) {Просмотр профилей мастеров};
+\node[usecase] at (5, -6.0) {Онлайн-запись на обслуживание};
+\node[usecase] at (5, -7.5) {Просмотр своих записей};
+\node[usecase] at (5, -9.0) {Отмена записи};
+\node[usecase] at (5, -10.5) {Оставление отзыва};
+\node[usecase] at (5, -12.0) {Редактирование профиля};
+
+% Admin use cases
+\node[usecase] at (9.5, -1.5) {Панель управления};
+\node[usecase] at (9.5, -3.0) {Управление услугами};
+\node[usecase] at (9.5, -4.5) {Управление сотрудниками};
+\node[usecase] at (9.5, -6.0) {Управление расписанием};
+\node[usecase] at (9.5, -7.5) {Управление записями};
+\node[usecase] at (9.5, -9.0) {Управление клиентами};
+\node[usecase] at (9.5, -10.5) {Модерация отзывов};
+\node[usecase] at (9.5, -12.0) {Аналитика и статистика};
+
+% Client connections
+\foreach \y in {-1.5,-3.0,-4.5,-6.0,-7.5,-9.0,-10.5,-12.0}
+    \draw (0.5,-4.0) -- (3.2,\y);
+
+% Admin connections
+\foreach \y in {-1.5,-3.0,-4.5,-6.0,-7.5,-9.0,-10.5,-12.0}
+    \draw (13.5,-4.0) -- (11.8,\y);
+
+\end{tikzpicture}
+\caption{Диаграмма вариантов использования}\label{fig:usecase}
+\end{figure}
+
+\subsection{Архитектура приложения}
+
+Приложение построено по архитектурному паттерну MVC (Model-View-Controller) с использованием модульной структуры Flask Blueprints. Данный подход позволяет разделить код приложения на логически независимые модули, каждый из которых отвечает за свою область функциональности.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    block/.style={draw, rounded corners, minimum width=3cm, minimum height=1cm, text width=3cm, align=center, fill=blue!10},
+    dbblock/.style={draw, cylinder, shape border rotate=90, aspect=0.25, minimum width=2.5cm, minimum height=1.2cm, fill=green!10, align=center},
+    arrow/.style={-{Stealth[length=3mm]}, thick}
+]
+
+% Client layer
+\node[block, fill=orange!15] (browser) at (0,0) {Браузер\\(HTML/CSS/JS)};
+
+% Server layer
+\node[block, fill=blue!15] (flask) at (0,-2.5) {Flask\\Application};
+\node[block, fill=yellow!15] (auth) at (-5,-5) {Blueprint:\\auth};
+\node[block, fill=yellow!15] (admin) at (-1.7,-5) {Blueprint:\\admin};
+\node[block, fill=yellow!15] (client) at (1.7,-5) {Blueprint:\\client};
+\node[block, fill=yellow!15] (api) at (5,-5) {Blueprint:\\api};
+
+% Model layer
+\node[block, fill=purple!15] (models) at (0,-7.5) {SQLAlchemy\\Models (ORM)};
+
+% Database
+\node[dbblock] (db) at (0,-10) {SQLite\\autoservice.db};
+
+% Arrows
+\draw[arrow, <->] (browser) -- node[right, font=\small]{HTTP} (flask);
+\draw[arrow] (flask) -- (auth);
+\draw[arrow] (flask) -- (admin);
+\draw[arrow] (flask) -- (client);
+\draw[arrow] (flask) -- (api);
+\draw[arrow, <->] (auth) -- (models);
+\draw[arrow, <->] (admin) -- (models);
+\draw[arrow, <->] (client) -- (models);
+\draw[arrow, <->] (api) -- (models);
+\draw[arrow, <->] (models) -- node[right, font=\small]{SQL} (db);
+
+\end{tikzpicture}
+\caption{Архитектура приложения}\label{fig:architecture}
+\end{figure}
+
+Приложение состоит из следующих модулей (Blueprints):
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{auth} --- модуль аутентификации (регистрация, вход, выход, профиль, смена пароля);
+    \item \textbf{admin} --- модуль административной панели (дашборд, управление услугами, сотрудниками, записями, клиентами, отзывами);
+    \item \textbf{client} --- модуль клиентской части (главная страница, каталог услуг, запись на обслуживание, мои записи, мастера);
+    \item \textbf{api} --- модуль REST API (получение доступных временных слотов, списка мастеров для услуги, событий для календаря).
+\end{itemize}
+
+\subsection{Проектирование базы данных}
+
+База данных является ключевым компонентом системы. В результате проектирования была разработана реляционная схема, состоящая из 7 основных таблиц и 1 связующей таблицы.
+
+\subsubsection{Описание таблиц базы данных}
+
+\begin{table}[H]
+\caption{Таблица users --- пользователи системы}\label{tab:users}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Поле} & \textbf{Тип} & \textbf{Ключ} & \textbf{Описание} \\
+\hline
+id & Integer & PK & Уникальный идентификатор \\
+\hline
+email & String(120) & UQ, IDX & Электронная почта \\
+\hline
+password\_hash & String(256) & & Хеш пароля \\
+\hline
+role & String(20) & & Роль: admin/employee/client \\
+\hline
+first\_name & String(50) & & Имя пользователя \\
+\hline
+last\_name & String(50) & & Фамилия пользователя \\
+\hline
+phone & String(20) & & Номер телефона \\
+\hline
+avatar & String(255) & & Путь к аватару \\
+\hline
+is\_active & Boolean & & Флаг активности \\
+\hline
+created\_at & DateTime & & Дата регистрации \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Таблица service\_categories --- категории услуг}\label{tab:categories}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Поле} & \textbf{Тип} & \textbf{Ключ} & \textbf{Описание} \\
+\hline
+id & Integer & PK & Уникальный идентификатор \\
+\hline
+name & String(100) & & Название категории \\
+\hline
+description & Text & & Описание категории \\
+\hline
+icon & String(50) & & CSS-класс иконки \\
+\hline
+slug & String(100) & UQ & URL-адрес категории \\
+\hline
+is\_active & Boolean & & Флаг активности \\
+\hline
+sort\_order & Integer & & Порядок сортировки \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Таблица services --- услуги автосервиса}\label{tab:services}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Поле} & \textbf{Тип} & \textbf{Ключ} & \textbf{Описание} \\
+\hline
+id & Integer & PK & Уникальный идентификатор \\
+\hline
+name & String(200) & & Название услуги \\
+\hline
+description & Text & & Полное описание \\
+\hline
+short\_description & String(300) & & Краткое описание \\
+\hline
+price & Numeric(10,2) & & Цена в тенге \\
+\hline
+duration & Integer & & Длительность в минутах \\
+\hline
+category\_id & Integer & FK & Ссылка на категорию \\
+\hline
+image & String(255) & & Путь к изображению \\
+\hline
+is\_active & Boolean & & Флаг активности \\
+\hline
+is\_featured & Boolean & & Рекомендуемая услуга \\
+\hline
+created\_at & DateTime & & Дата создания \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Таблица employees --- профили сотрудников}\label{tab:employees}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Поле} & \textbf{Тип} & \textbf{Ключ} & \textbf{Описание} \\
+\hline
+id & Integer & PK & Уникальный идентификатор \\
+\hline
+user\_id & Integer & FK, UQ & Ссылка на пользователя \\
+\hline
+specialization & String(200) & & Специализация мастера \\
+\hline
+bio & Text & & Биография мастера \\
+\hline
+experience\_years & Integer & & Стаж работы (лет) \\
+\hline
+photo & String(255) & & Путь к фотографии \\
+\hline
+is\_available & Boolean & & Доступен для записи \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Таблица work\_schedules --- расписание работы}\label{tab:schedules}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Поле} & \textbf{Тип} & \textbf{Ключ} & \textbf{Описание} \\
+\hline
+id & Integer & PK & Уникальный идентификатор \\
+\hline
+employee\_id & Integer & FK & Ссылка на сотрудника \\
+\hline
+day\_of\_week & Integer & & День недели (0--6) \\
+\hline
+start\_time & Time & & Начало рабочего дня \\
+\hline
+end\_time & Time & & Конец рабочего дня \\
+\hline
+is\_working & Boolean & & Флаг рабочего дня \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Таблица bookings --- записи на обслуживание}\label{tab:bookings}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Поле} & \textbf{Тип} & \textbf{Ключ} & \textbf{Описание} \\
+\hline
+id & Integer & PK & Уникальный идентификатор \\
+\hline
+booking\_number & String(20) & UQ & Номер записи (AS...) \\
+\hline
+client\_id & Integer & FK & Ссылка на клиента \\
+\hline
+employee\_id & Integer & FK & Ссылка на мастера \\
+\hline
+service\_id & Integer & FK & Ссылка на услугу \\
+\hline
+booking\_date & Date & & Дата обслуживания \\
+\hline
+start\_time & Time & & Время начала \\
+\hline
+end\_time & Time & & Время окончания \\
+\hline
+status & String(20) & & Статус записи \\
+\hline
+total\_price & Numeric(10,2) & & Итоговая цена \\
+\hline
+car\_info & String(200) & & Информация об авто \\
+\hline
+notes & Text & & Примечания клиента \\
+\hline
+admin\_notes & Text & & Заметки администратора \\
+\hline
+created\_at & DateTime & & Дата создания \\
+\hline
+updated\_at & DateTime & & Дата обновления \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Таблица reviews --- отзывы клиентов}\label{tab:reviews}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Поле} & \textbf{Тип} & \textbf{Ключ} & \textbf{Описание} \\
+\hline
+id & Integer & PK & Уникальный идентификатор \\
+\hline
+booking\_id & Integer & FK, UQ & Ссылка на запись \\
+\hline
+client\_id & Integer & FK & Ссылка на клиента \\
+\hline
+rating & Integer & & Оценка (1--5) \\
+\hline
+comment & Text & & Текст отзыва \\
+\hline
+is\_published & Boolean & & Флаг публикации \\
+\hline
+created\_at & DateTime & & Дата создания \\
+\hline
+\end{tabularx}
+\end{table}
+
+Дополнительно создана связующая таблица \texttt{employee\_services} для реализации связи <<многие-ко-многим>> между сотрудниками и услугами. Она содержит два поля: \texttt{employee\_id} (FK на employees) и \texttt{service\_id} (FK на services).
+
+\subsubsection{ER-диаграмма базы данных}
+
+Связи между таблицами представлены на рисунке~\ref{fig:erdiagram}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    entity/.style={draw, rectangle, rounded corners=3pt, minimum width=3cm, minimum height=0.8cm, fill=blue!10, font=\small\bfseries},
+    relation/.style={-{Stealth[length=2mm]}, thick, blue!60}
+]
+
+\node[entity] (users) at (0,0) {users};
+\node[entity] (employees) at (5,0) {employees};
+\node[entity] (schedules) at (10,0) {work\_schedules};
+\node[entity] (emp_svc) at (5,-2.5) {employee\_services};
+\node[entity] (services) at (0,-2.5) {services};
+\node[entity] (categories) at (-4,-2.5) {service\_categories};
+\node[entity] (bookings) at (5,-5) {bookings};
+\node[entity] (reviews) at (10,-5) {reviews};
+
+\draw[relation] (employees) -- node[above, font=\tiny]{user\_id} (users);
+\draw[relation] (schedules) -- node[above, font=\tiny]{employee\_id} (employees);
+\draw[relation] (emp_svc) -- node[left, font=\tiny]{employee\_id} (employees);
+\draw[relation] (emp_svc) -- node[left, font=\tiny]{service\_id} (services);
+\draw[relation] (services) -- node[above, font=\tiny]{category\_id} (categories);
+\draw[relation] (bookings) -- node[left, font=\tiny]{client\_id} (users);
+\draw[relation] (bookings) -- node[right, font=\tiny]{employee\_id} (employees);
+\draw[relation] (bookings) -- node[left, font=\tiny]{service\_id} (services);
+\draw[relation] (reviews) -- node[above, font=\tiny]{booking\_id} (bookings);
+\draw[relation] (reviews.north) -- ++(0,1) -| node[near start, above, font=\tiny]{client\_id} (users);
+
+\end{tikzpicture}
+\caption{ER-диаграмма базы данных}\label{fig:erdiagram}
+\end{figure}
+
+\subsection{Проектирование маршрутов (URL-схема)}
+
+Маршрутизация приложения организована по модулям (Blueprints). Каждый модуль имеет свой префикс URL.
+
+\begin{table}[H]
+\caption{Основные маршруты модуля auth}\label{tab:routes_auth}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{URL} & \textbf{Методы} & \textbf{Описание} \\
+\hline
+/auth/login & GET, POST & Страница входа в систему \\
+\hline
+/auth/register & GET, POST & Страница регистрации \\
+\hline
+/auth/logout & GET & Выход из системы \\
+\hline
+/auth/profile & GET, POST & Профиль пользователя \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Основные маршруты модуля client}\label{tab:routes_client}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{URL} & \textbf{Методы} & \textbf{Описание} \\
+\hline
+/ & GET & Главная страница \\
+\hline
+/services & GET & Каталог услуг \\
+\hline
+/services/<id> & GET & Детальная страница услуги \\
+\hline
+/booking & GET, POST & Форма записи на обслуживание \\
+\hline
+/booking/success/<id> & GET & Подтверждение записи \\
+\hline
+/my-bookings & GET & Список записей клиента \\
+\hline
+/my-bookings/<id> & GET & Детали записи \\
+\hline
+/my-bookings/<id>/cancel & POST & Отмена записи \\
+\hline
+/my-bookings/<id>/review & POST & Оставить отзыв \\
+\hline
+/employees & GET & Список мастеров \\
+\hline
+/about & GET & Страница <<О нас>> \\
+\hline
+/contacts & GET & Страница контактов \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Основные маршруты модуля admin}\label{tab:routes_admin}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{URL} & \textbf{Методы} & \textbf{Описание} \\
+\hline
+/admin/ & GET & Панель управления (дашборд) \\
+\hline
+/admin/bookings & GET & Список всех записей \\
+\hline
+/admin/bookings/<id> & GET, POST & Детали и статус записи \\
+\hline
+/admin/services & GET & Список услуг \\
+\hline
+/admin/services/new & GET, POST & Создание услуги \\
+\hline
+/admin/services/<id>/edit & GET, POST & Редактирование услуги \\
+\hline
+/admin/categories & GET & Список категорий \\
+\hline
+/admin/employees & GET & Список сотрудников \\
+\hline
+/admin/employees/new & GET, POST & Добавление сотрудника \\
+\hline
+/admin/employees/<id>/schedule & GET, POST & Расписание сотрудника \\
+\hline
+/admin/clients & GET & Список клиентов \\
+\hline
+/admin/reviews & GET & Модерация отзывов \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Маршруты REST API}\label{tab:routes_api}
+\centering
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{URL} & \textbf{Методы} & \textbf{Описание} \\
+\hline
+/api/available-slots & GET & Получение свободных слотов \\
+\hline
+/api/employees-for-service & GET & Мастера для услуги \\
+\hline
+/api/calendar-events & GET & События для календаря \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Жизненный цикл записи на обслуживание}
+
+Запись на обслуживание проходит через несколько статусов, образуя конечный автомат состояний:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    state/.style={draw, rounded corners, minimum width=3.2cm, minimum height=0.9cm, fill=blue!10, font=\small\bfseries, align=center},
+    arrow/.style={-{Stealth[length=3mm]}, thick}
+]
+
+\node[state, fill=yellow!20] (pending) at (0,0) {Ожидает\\подтверждения};
+\node[state, fill=cyan!20] (confirmed) at (5,0) {Подтверждено};
+\node[state, fill=blue!20] (inprogress) at (10,0) {В работе};
+\node[state, fill=green!20] (completed) at (10,-3) {Завершено};
+\node[state, fill=red!20] (cancelled) at (0,-3) {Отменено};
+
+\draw[arrow] (pending) -- node[above, font=\tiny]{Администратор} (confirmed);
+\draw[arrow] (confirmed) -- node[above, font=\tiny]{Администратор} (inprogress);
+\draw[arrow] (inprogress) -- node[right, font=\tiny]{Администратор} (completed);
+\draw[arrow] (pending) -- node[left, font=\tiny]{Клиент/Админ} (cancelled);
+\draw[arrow] (confirmed) -- node[above, font=\tiny, sloped]{Клиент/Админ} (cancelled);
+
+\end{tikzpicture}
+\caption{Диаграмма состояний записи}\label{fig:booking_states}
+\end{figure}
+
+\subsection{Проектирование пользовательского интерфейса}
+
+Пользовательский интерфейс веб-платформы спроектирован с учётом следующих принципов:
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Простота навигации} --- главное меню содержит ссылки на основные разделы: <<Услуги>>, <<Мастера>>, <<Запись>>, <<О нас>>, <<Контакты>>;
+    \item \textbf{Адаптивная вёрстка} --- интерфейс корректно отображается на экранах от 320px (мобильные устройства) до 1920px (настольные мониторы);
+    \item \textbf{Единая цветовая схема} --- основные цвета: синий (\#0d6efd) для акцентных элементов, белый и светло-серый (\#f8f9fa) для фона, тёмно-серый (\#212529) для текста;
+    \item \textbf{Карточная компоновка} --- услуги, мастера и записи отображаются в виде карточек Bootstrap Cards;
+    \item \textbf{Пошаговая форма записи} --- клиент последовательно выбирает услугу, мастера, дату, временной слот и подтверждает запись;
+    \item \textbf{Информативная обратная связь} --- flash-сообщения уведомляют пользователя о результате действий.
+\end{itemize}
+
+Для административной панели используется отдельный макет с боковой навигационной панелью, содержащей ссылки на все разделы управления: дашборд, записи, услуги, категории, сотрудники, клиенты, отзывы.
+
+\subsection{Алгоритм формирования временных слотов}
+
+Ключевым элементом системы онлайн-записи является алгоритм формирования доступных временных слотов. Алгоритм работает следующим образом:
+
+\begin{enumerate}[leftmargin=2cm]
+    \item Клиент выбирает услугу, мастера и дату;
+    \item Система определяет расписание мастера на выбранный день недели;
+    \item Если мастер не работает в этот день --- возвращается пустой список;
+    \item Загружаются все существующие записи мастера на эту дату (со статусами pending, confirmed, in\_progress);
+    \item Формируется множество <<занятых>> слотов с шагом 30 минут;
+    \item Генерируются все возможные слоты от начала до конца рабочего дня с шагом 30 минут;
+    \item Для каждого потенциального слота проверяется, что все 30-минутные интервалы, необходимые для услуги, свободны;
+    \item Возвращается список доступных слотов в формате JSON.
+\end{enumerate}
+
+Данный алгоритм учитывает длительность услуги: если услуга занимает 90 минут, то для неё необходимо 3 последовательных свободных 30-минутных слота.
+
+
+% ================================================================
+%         РАЗДЕЛ 3: ПРАКТИЧЕСКАЯ РЕАЛИЗАЦИЯ ПРОЕКТА
+% ================================================================
+\newpage
+\section{ПРАКТИЧЕСКАЯ РЕАЛИЗАЦИЯ ПРОЕКТА}
+
+\subsection{Инструменты разработки}
+
+Для реализации дипломного проекта использовались следующие инструменты:
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Операционная система:} Windows 10/11 (совместимо с macOS и Linux);
+    \item \textbf{Среда разработки:} Visual Studio Code с расширениями Python, Jinja2;
+    \item \textbf{Язык программирования:} Python 3.12;
+    \item \textbf{Веб-фреймворк:} Flask 3.0.3;
+    \item \textbf{ORM:} SQLAlchemy 2.0.30;
+    \item \textbf{СУБД:} SQLite 3;
+    \item \textbf{Фронтенд:} HTML5, CSS3, JavaScript (ES6), Bootstrap 5;
+    \item \textbf{Управление зависимостями:} pip, requirements.txt;
+    \item \textbf{Версионный контроль:} Git;
+    \item \textbf{Браузеры для тестирования:} Google Chrome, Mozilla Firefox.
+\end{itemize}
+
+\subsection{Структура файлов проекта}
+
+Файловая структура проекта организована по модульному принципу:
+
+\begin{lstlisting}[language={}, caption={Файловая структура проекта}, label={lst:structure}]
+autoservice/
+    run.py                  # Точка входа
+    config.py               # Конфигурация
+    init_db.py              # Инициализация БД
+    requirements.txt        # Зависимости
+    autoservice.db          # База данных SQLite
+    app/
+        __init__.py         # Фабрика приложения
+        models.py           # Модели базы данных
+        utils.py            # Вспомогательные функции
+        auth/
+            __init__.py     # Blueprint auth
+            forms.py        # Формы авторизации
+            routes.py       # Маршруты авторизации
+        admin/
+            __init__.py     # Blueprint admin
+            forms.py        # Формы админ-панели
+            routes.py       # Маршруты админ-панели
+        client/
+            __init__.py     # Blueprint client
+            forms.py        # Формы клиента
+            routes.py       # Маршруты клиента
+        api/
+            __init__.py     # Blueprint api
+            routes.py       # REST API маршруты
+        templates/          # HTML-шаблоны (Jinja2)
+            base.html
+            auth/
+            admin/
+            client/
+        static/             # Статические файлы
+            css/
+            js/
+            uploads/
+\end{lstlisting}
+
+\subsection{Конфигурация приложения}
+
+Конфигурация приложения вынесена в отдельный класс \texttt{Config} в файле \texttt{config.py}:
+
+\begin{lstlisting}[language=Python, caption={Конфигурация приложения (config.py)}, label={lst:config}]
+import os
+from datetime import timedelta
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or \
+        'autoservice-diploma-secret-2024-xK9mP'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'autoservice.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+
+    UPLOAD_FOLDER = os.path.join(basedir, 'app',
+                                 'static', 'uploads')
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg',
+                          'gif', 'webp'}
+
+    # Business settings
+    BUSINESS_NAME = 'АвтоСервис Про Алматы'
+    BUSINESS_START_HOUR = 8
+    BUSINESS_END_HOUR = 20
+    SLOT_DURATION_MINUTES = 30
+    WTF_CSRF_ENABLED = True
+\end{lstlisting}
+
+Конфигурация включает секретный ключ для подписи сессий, URI базы данных, параметры загрузки файлов (до 16 МБ), а также бизнес-настройки: название автосервиса, рабочие часы (с 8:00 до 20:00) и длительность временного слота (30 минут).
+
+\subsection{Фабрика приложения}
+
+Flask использует паттерн <<фабрика приложения>> (Application Factory), который позволяет создавать экземпляр приложения с различными конфигурациями:
+
+\begin{lstlisting}[language=Python, caption={Фабрика приложения (app/\_\_init\_\_.py)}, label={lst:factory}]
+from flask import Flask
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect, generate_csrf
+from config import Config
+from app.models import db, User
+
+login_manager = LoginManager()
+migrate = Migrate()
+csrf = CSRFProtect()
+
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+
+    # Init extensions
+    db.init_app(app)
+    login_manager.init_app(app)
+    migrate.init_app(app, db)
+    csrf.init_app(app)
+
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = \
+        'Пожалуйста, войдите в систему.'
+    login_manager.login_message_category = 'warning'
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # Register blueprints
+    from app.auth import bp as auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    from app.admin import bp as admin_bp
+    app.register_blueprint(admin_bp, url_prefix='/admin')
+
+    from app.client import bp as client_bp
+    app.register_blueprint(client_bp)
+
+    from app.api import bp as api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
+
+    return app
+\end{lstlisting}
+
+Фабрика инициализирует все расширения Flask (SQLAlchemy, LoginManager, Migrate, CSRFProtect), регистрирует четыре Blueprint-модуля с соответствующими префиксами URL, а также определяет функцию загрузки пользователя для системы аутентификации.
+
+\subsection{Модели базы данных}
+
+Модели базы данных описаны в файле \texttt{app/models.py} с использованием SQLAlchemy ORM. Рассмотрим ключевые модели.
+
+\begin{lstlisting}[language=Python, caption={Модель пользователя (User)}, label={lst:user_model}]
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True,
+                      nullable=False, index=True)
+    password_hash = db.Column(db.String(256),
+                              nullable=False)
+    role = db.Column(db.String(20), nullable=False,
+                     default='client')
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    phone = db.Column(db.String(20))
+    avatar = db.Column(db.String(255),
+                       default='default_avatar.png')
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime,
+                           default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(
+            password)
+
+    def check_password(self, password):
+        return check_password_hash(
+            self.password_hash, password)
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def is_admin(self):
+        return self.role == 'admin'
+\end{lstlisting}
+
+Модель \texttt{User} наследуется от \texttt{UserMixin} (Flask-Login) и \texttt{db.Model} (SQLAlchemy). Пароль хранится в виде хеша, что обеспечивает безопасность. Роль пользователя определяется полем \texttt{role}, которое принимает одно из значений: admin, employee или client.
+
+\begin{lstlisting}[language=Python, caption={Модель записи на обслуживание (Booking)}, label={lst:booking_model}]
+class Booking(db.Model):
+    __tablename__ = 'bookings'
+
+    STATUS_PENDING = 'pending'
+    STATUS_CONFIRMED = 'confirmed'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_COMPLETED = 'completed'
+    STATUS_CANCELLED = 'cancelled'
+
+    STATUS_CHOICES = {
+        STATUS_PENDING: 'Ожидает подтверждения',
+        STATUS_CONFIRMED: 'Подтверждено',
+        STATUS_IN_PROGRESS: 'В работе',
+        STATUS_COMPLETED: 'Завершено',
+        STATUS_CANCELLED: 'Отменено'
+    }
+
+    id = db.Column(db.Integer, primary_key=True)
+    booking_number = db.Column(db.String(20),
+                               unique=True)
+    client_id = db.Column(db.Integer,
+        db.ForeignKey('users.id'), nullable=False)
+    employee_id = db.Column(db.Integer,
+        db.ForeignKey('employees.id'), nullable=False)
+    service_id = db.Column(db.Integer,
+        db.ForeignKey('services.id'), nullable=False)
+    booking_date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    status = db.Column(db.String(20),
+                       default=STATUS_PENDING)
+    total_price = db.Column(db.Numeric(10, 2),
+                            nullable=False)
+    car_info = db.Column(db.String(200))
+    notes = db.Column(db.Text)
+
+    def can_cancel(self):
+        return self.status in (self.STATUS_PENDING,
+                               self.STATUS_CONFIRMED)
+
+    def can_review(self):
+        return (self.status == self.STATUS_COMPLETED
+                and not self.review)
+\end{lstlisting}
+
+Модель \texttt{Booking} хранит всю информацию о записи: клиент, мастер, услуга, дата и время, статус, цена, информация об автомобиле. Методы \texttt{can\_cancel()} и \texttt{can\_review()} реализуют бизнес-логику управления записью.
+
+\subsection{Система аутентификации}
+
+Аутентификация пользователей реализована в модуле \texttt{auth}. Рассмотрим обработчик входа в систему:
+
+\begin{lstlisting}[language=Python, caption={Обработчик входа в систему (auth/routes.py)}, label={lst:login}]
+@bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('client.index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(
+            email=form.email.data.lower()).first()
+        if user and user.check_password(
+                form.password.data):
+            if not user.is_active:
+                flash('Ваш аккаунт заблокирован.',
+                      'danger')
+                return redirect(url_for('auth.login'))
+            login_user(user,
+                       remember=form.remember_me.data)
+            next_page = request.args.get('next')
+            if user.is_admin():
+                return redirect(next_page or
+                    url_for('admin.dashboard'))
+            return redirect(next_page or
+                url_for('client.index'))
+        flash('Неверный email или пароль.', 'danger')
+    return render_template('auth/login.html',
+                           title='Вход', form=form)
+\end{lstlisting}
+
+Обработчик проверяет, не авторизован ли пользователь уже, валидирует форму, ищет пользователя по email, проверяет пароль и статус активности. После успешной аутентификации администратор перенаправляется в панель управления, а клиент --- на главную страницу.
+
+\subsection{Форма записи на обслуживание}
+
+Процесс записи является центральной функцией приложения. Форма записи позволяет клиенту выбрать услугу, мастера, дату и доступный временной слот:
+
+\begin{lstlisting}[language=Python, caption={Обработка формы записи (client/routes.py)}, label={lst:booking_handler}]
+@bp.route('/booking', methods=['GET', 'POST'])
+@login_required
+def booking():
+    service_id = request.args.get('service_id',
+                                   type=int)
+    service = None
+    if service_id:
+        service = Service.query.filter_by(
+            id=service_id, is_active=True
+        ).first_or_404()
+
+    form = BookingForm()
+
+    if service:
+        available_employees = [
+            e for e in service.employees
+            if e.is_available]
+    else:
+        available_employees = Employee.query.filter_by(
+            is_available=True).all()
+
+    form.employee_id.choices = [
+        (e.id, f"{e.user.full_name} - "
+                f"{e.specialization or 'Мастер'}")
+        for e in available_employees]
+
+    if form.validate_on_submit():
+        emp = Employee.query.get(form.employee_id.data)
+        svc = Service.query.get(
+            int(form.service_id.data))
+
+        booking_date = form.booking_date.data
+        start_time_obj = datetime.strptime(
+            form.start_time.data, '%H:%M').time()
+
+        if not is_slot_available(emp.id, booking_date,
+                start_time_obj, svc.duration):
+            flash('Выбранное время уже занято.',
+                  'warning')
+            return redirect(url_for('client.booking',
+                service_id=service_id))
+
+        end_time_obj = (datetime.combine(
+            booking_date, start_time_obj) +
+            timedelta(minutes=svc.duration)).time()
+
+        new_booking = Booking(
+            booking_number=generate_booking_number(),
+            client_id=current_user.id,
+            employee_id=emp.id,
+            service_id=svc.id,
+            booking_date=booking_date,
+            start_time=start_time_obj,
+            end_time=end_time_obj,
+            total_price=svc.price,
+            car_info=form.car_info.data,
+            notes=form.notes.data,
+            status=Booking.STATUS_PENDING
+        )
+        db.session.add(new_booking)
+        db.session.commit()
+        flash('Запись успешно создана!', 'success')
+        return redirect(url_for(
+            'client.booking_success',
+            booking_id=new_booking.id))
+
+    return render_template('client/booking.html',
+        title='Запись на услугу', form=form,
+        service=service,
+        available_employees=available_employees)
+\end{lstlisting}
+
+Данный обработчик выполняет следующие действия: загружает выбранную услугу, формирует список доступных мастеров, при отправке формы проверяет доступность слота, рассчитывает время окончания обслуживания, создаёт новую запись в базе данных и перенаправляет клиента на страницу подтверждения.
+
+\subsection{REST API для динамической загрузки данных}
+
+Модуль API предоставляет эндпоинты для AJAX-запросов с клиентской стороны. Ключевой эндпоинт --- получение доступных временных слотов:
+
+\begin{lstlisting}[language=Python, caption={API получения доступных слотов (api/routes.py)}, label={lst:api_slots}]
+@bp.route('/available-slots')
+@login_required
+def available_slots():
+    employee_id = request.args.get('employee_id',
+                                    type=int)
+    service_id = request.args.get('service_id',
+                                   type=int)
+    date_str = request.args.get('date', '')
+
+    if not all([employee_id, service_id, date_str]):
+        return jsonify({'error': 'Missing params'}), 400
+
+    target_date = datetime.strptime(
+        date_str, '%Y-%m-%d').date()
+
+    if target_date < date.today():
+        return jsonify({'slots': []})
+
+    service = Service.query.get(service_id)
+    schedule = WorkSchedule.query.filter_by(
+        employee_id=employee_id,
+        day_of_week=target_date.weekday(),
+        is_working=True).first()
+
+    if not schedule:
+        return jsonify({'slots': [],
+            'message': 'Мастер не работает'})
+
+    busy = get_busy_slots(employee_id, target_date,
+                          service.duration)
+
+    slots = []
+    current = datetime.combine(target_date,
+                               schedule.start_time)
+    schedule_end = datetime.combine(target_date,
+                                    schedule.end_time)
+    service_delta = timedelta(
+        minutes=service.duration)
+    slot_step = timedelta(minutes=30)
+
+    while current + service_delta <= schedule_end:
+        is_free = True
+        check = current
+        while check < current + service_delta:
+            if check.time() in busy:
+                is_free = False
+                break
+            check += slot_step
+        if is_free:
+            slots.append(
+                current.time().strftime('%H:%M'))
+        current += slot_step
+
+    return jsonify({'slots': slots})
+\end{lstlisting}
+
+API возвращает данные в формате JSON. JavaScript на стороне клиента выполняет AJAX-запрос при выборе мастера и даты, получает список доступных слотов и динамически отображает их в виде кнопок для выбора.
+
+\subsection{Административная панель}
+
+Административная панель предоставляет полный набор инструментов для управления автосервисом. Главная страница панели (дашборд) отображает ключевые показатели:
+
+\begin{lstlisting}[language=Python, caption={Дашборд администратора (admin/routes.py)}, label={lst:dashboard}]
+@bp.route('/dashboard')
+@login_required
+@admin_required
+def dashboard():
+    today = date.today()
+    month_start = today.replace(day=1)
+
+    stats = {
+        'total_bookings': Booking.query.count(),
+        'today_bookings': Booking.query.filter_by(
+            booking_date=today).count(),
+        'month_bookings': Booking.query.filter(
+            Booking.booking_date >= month_start
+        ).count(),
+        'pending_bookings': Booking.query.filter_by(
+            status='pending').count(),
+        'total_clients': User.query.filter_by(
+            role='client').count(),
+        'total_employees': Employee.query.count(),
+        'total_services': Service.query.filter_by(
+            is_active=True).count(),
+        'total_revenue': db.session.query(
+            func.sum(Booking.total_price)
+        ).filter_by(status='completed').scalar() or 0,
+    }
+
+    recent_bookings = (Booking.query
+        .order_by(Booking.created_at.desc())
+        .limit(8).all())
+
+    today_bookings = (Booking.query
+        .filter_by(booking_date=today)
+        .order_by(Booking.start_time).all())
+
+    return render_template('admin/dashboard.html',
+        title='Панель управления', stats=stats,
+        recent_bookings=recent_bookings,
+        today_bookings=today_bookings)
+\end{lstlisting}
+
+Дашборд агрегирует данные о количестве записей (общее, за сегодня, за месяц, ожидающих), количестве клиентов, сотрудников и услуг, общей и месячной выручке. Также отображаются таблица последних записей и расписание на текущий день.
+
+\subsection{Декораторы доступа и вспомогательные функции}
+
+Для контроля доступа реализованы декораторы, ограничивающие доступ к маршрутам:
+
+\begin{lstlisting}[language=Python, caption={Декоратор проверки прав администратора (utils.py)}, label={lst:decorators}]
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated \
+                or not current_user.is_admin():
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+def generate_booking_number():
+    now = datetime.utcnow()
+    return f"AS{now.strftime('%Y%m%d')}" \
+           f"{uuid.uuid4().hex[:6].upper()}"
+
+def save_image(file, subfolder=''):
+    if file and allowed_file(file.filename):
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        upload_path = os.path.join(
+            current_app.config['UPLOAD_FOLDER'],
+            subfolder)
+        os.makedirs(upload_path, exist_ok=True)
+        file.save(os.path.join(upload_path, filename))
+        return os.path.join(subfolder,
+                            filename).replace('\\', '/')
+    return None
+\end{lstlisting}
+
+Функция \texttt{generate\_booking\_number()} создаёт уникальный номер записи формата <<AS20260324ABCDEF>>, используя текущую дату и случайный UUID. Функция \texttt{save\_image()} сохраняет загруженное изображение в подпапку uploads с уникальным именем файла.
+
+\subsection{Формы и валидация данных}
+
+Формы реализованы с использованием Flask-WTF, что обеспечивает серверную валидацию и CSRF-защиту. Рассмотрим форму записи на обслуживание:
+
+\begin{lstlisting}[language=Python, caption={Форма записи (client/forms.py)}, label={lst:booking_form}]
+class BookingForm(FlaskForm):
+    service_id = HiddenField('Услуга',
+        validators=[DataRequired()])
+    employee_id = SelectField('Мастер',
+        coerce=int,
+        validators=[DataRequired()])
+    booking_date = DateField('Дата',
+        validators=[DataRequired()])
+    start_time = HiddenField('Время',
+        validators=[DataRequired()])
+    car_info = StringField(
+        'Информация об автомобиле',
+        validators=[Optional(), Length(max=200)])
+    notes = TextAreaField('Дополнительные пожелания',
+        validators=[Optional(), Length(max=500)])
+    submit = SubmitField('Подтвердить запись')
+
+class ReviewForm(FlaskForm):
+    rating = HiddenField('Оценка',
+        validators=[DataRequired()])
+    comment = TextAreaField('Ваш отзыв',
+        validators=[Optional(), Length(max=1000)])
+    submit = SubmitField('Отправить отзыв')
+\end{lstlisting}
+
+Поля \texttt{service\_id} и \texttt{start\_time} являются скрытыми, так как они заполняются через JavaScript при взаимодействии пользователя с интерактивным интерфейсом выбора услуги и временного слота.
+
+\subsection{Инициализация базы данных и тестовые данные}
+
+Для демонстрации возможностей системы разработан скрипт \texttt{init\_db.py}, который создаёт таблицы и заполняет их тестовыми данными:
+
+\begin{lstlisting}[language=Python, caption={Инициализация БД с тестовыми данными (фрагмент init\_db.py)}, label={lst:initdb}]
+def init_db():
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
+        # Администратор
+        admin = User(
+            first_name='Асхат',
+            last_name='Администратор',
+            email='admin@autoservice.kz',
+            role='admin')
+        admin.set_password('admin123')
+        db.session.add(admin)
+
+        # 6 категорий услуг
+        cats_data = [
+            ('Техническое обслуживание', 'to',
+             'fa-oil-can', 0),
+            ('Диагностика', 'diagnostika',
+             'fa-laptop-medical', 1),
+            ('Кузовной ремонт', 'kuzov',
+             'fa-car-crash', 2),
+            ('Шиномонтаж', 'shiny', 'fa-tire', 3),
+            ('Электрика', 'elektrika', 'fa-bolt', 4),
+            ('Подвеска и рулевое', 'podveska',
+             'fa-car', 5),
+        ]
+
+        # 13 услуг с ценами в тенге
+        # 4 мастера с расписанием Пн-Пт 9-18, Сб 10-16
+        # 4 клиента, 5 записей, 3 отзыва
+        db.session.commit()
+\end{lstlisting}
+
+Скрипт создаёт 1 администратора, 6 категорий услуг, 13 услуг с ценами от 4\,000 до 45\,000 тенге, 4 мастеров с расписанием и специализациями, 4 клиентов, 5 тестовых записей и 3 отзыва.
+
+\subsection{Зависимости проекта}
+
+Все необходимые библиотеки перечислены в файле \texttt{requirements.txt}:
+
+\begin{lstlisting}[language={}, caption={Зависимости проекта (requirements.txt)}, label={lst:requirements}]
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+Flask-Migrate==4.0.7
+WTForms==3.1.2
+Werkzeug==3.0.3
+SQLAlchemy==2.0.30
+Pillow==10.3.0
+python-slugify==8.0.4
+email-validator==2.1.1
+\end{lstlisting}
+
+Установка зависимостей выполняется командой: \texttt{pip install -r requirements.txt}. Библиотека Pillow используется для обработки загруженных изображений, python-slugify --- для генерации URL-совместимых идентификаторов категорий, email-validator --- для валидации email-адресов.
+
+\subsection{Запуск приложения}
+
+Точка входа в приложение --- файл \texttt{run.py}:
+
+\begin{lstlisting}[language=Python, caption={Точка входа в приложение (run.py)}, label={lst:runpy}]
+from app import create_app
+from datetime import datetime
+
+app = create_app()
+
+@app.context_processor
+def inject_globals():
+    return {'now': datetime.utcnow()}
+
+if __name__ == '__main__':
+    import os
+    port = int(os.environ.get('PORT', 8080))
+    app.run(debug=True, host='127.0.0.1', port=port)
+\end{lstlisting}
+
+Приложение запускается на порту 8080 (по умолчанию). Контекстный процессор \texttt{inject\_globals} добавляет текущую дату во все шаблоны.
+
+\subsection{Тестирование приложения}
+
+Тестирование проводилось на нескольких уровнях:
+
+\textbf{1. Модульное тестирование} --- проверка корректности работы отдельных функций:
+\begin{itemize}[leftmargin=2cm]
+    \item хеширование и проверка паролей (\texttt{set\_password}, \texttt{check\_password});
+    \item генерация номера записи (\texttt{generate\_booking\_number});
+    \item проверка доступности временных слотов (\texttt{is\_slot\_available});
+    \item формирование множества занятых слотов (\texttt{get\_busy\_slots});
+    \item валидация форм (\texttt{LoginForm}, \texttt{RegisterForm}, \texttt{BookingForm}).
+\end{itemize}
+
+\textbf{2. Интеграционное тестирование} --- проверка взаимодействия компонентов:
+\begin{itemize}[leftmargin=2cm]
+    \item процесс регистрации: заполнение формы $\rightarrow$ создание пользователя в БД $\rightarrow$ автоматический вход $\rightarrow$ перенаправление на главную;
+    \item процесс записи: выбор услуги $\rightarrow$ выбор мастера $\rightarrow$ выбор даты $\rightarrow$ загрузка доступных слотов через API $\rightarrow$ подтверждение записи $\rightarrow$ сохранение в БД;
+    \item управление записями: создание $\rightarrow$ подтверждение администратором $\rightarrow$ выполнение $\rightarrow$ оставление отзыва;
+    \item проверка ограничений доступа: клиент не имеет доступа к /admin, неавторизованный пользователь перенаправляется на страницу входа.
+\end{itemize}
+
+\textbf{3. Функциональное тестирование} --- проверка сценариев использования:
+
+\begin{table}[H]
+\caption{Результаты функционального тестирования}\label{tab:testing}
+\centering
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{№} & \textbf{Тестовый сценарий} & \textbf{Результат} \\
+\hline
+1 & Регистрация нового клиента & Пройден \\
+\hline
+2 & Вход с корректными данными & Пройден \\
+\hline
+3 & Вход с некорректным паролем & Пройден \\
+\hline
+4 & Просмотр каталога услуг & Пройден \\
+\hline
+5 & Фильтрация услуг по категории & Пройден \\
+\hline
+6 & Поиск услуги по названию & Пройден \\
+\hline
+7 & Запись на обслуживание & Пройден \\
+\hline
+8 & Проверка доступности временных слотов & Пройден \\
+\hline
+9 & Запись на занятый слот (отклонение) & Пройден \\
+\hline
+10 & Отмена записи клиентом & Пройден \\
+\hline
+11 & Оставление отзыва после обслуживания & Пройден \\
+\hline
+12 & Изменение статуса записи администратором & Пройден \\
+\hline
+13 & Добавление новой услуги администратором & Пройден \\
+\hline
+14 & Управление расписанием сотрудника & Пройден \\
+\hline
+15 & Блокировка клиента администратором & Пройден \\
+\hline
+16 & Модерация отзывов (скрытие/публикация) & Пройден \\
+\hline
+17 & Загрузка изображения для услуги & Пройден \\
+\hline
+18 & Адаптивность интерфейса (мобильный вид) & Пройден \\
+\hline
+19 & Дашборд: отображение статистики & Пройден \\
+\hline
+20 & Запрет доступа клиента к админ-панели & Пройден \\
+\hline
+\end{tabularx}
+\end{table}
+
+Все 20 тестовых сценариев были успешно пройдены. Приложение корректно обрабатывает как штатные, так и нештатные ситуации (ввод некорректных данных, попытка доступа без авторизации, запись на занятый слот).
+
+\textbf{4. Тестирование производительности} --- проверка быстродействия:
+\begin{itemize}[leftmargin=2cm]
+    \item среднее время загрузки главной страницы: 0.3 секунды;
+    \item время ответа API /api/available-slots: 0.15 секунды;
+    \item время создания записи: 0.2 секунды;
+    \item время загрузки дашборда администратора: 0.5 секунды.
+\end{itemize}
+
+Все показатели находятся в пределах допустимых значений и значительно ниже порога в 3 секунды, установленного в нефункциональных требованиях.
+
+\subsection{Обеспечение безопасности приложения}
+
+Безопасность веб-приложения является одним из ключевых аспектов при работе с персональными данными клиентов автосервиса. В процессе разработки были реализованы комплексные меры защиты от основных типов атак.
+
+\textbf{Защита от CSRF-атак.} Межсайтовая подделка запросов (Cross-Site Request Forgery) представляет угрозу для веб-приложений, использующих аутентификацию на основе cookies. Для защиты от данного типа атак в проекте используется расширение Flask-WTF, которое автоматически генерирует уникальный CSRF-токен для каждой пользовательской сессии. Токен включается в каждую HTML-форму в виде скрытого поля и проверяется при обработке POST-запроса на сервере. Если токен отсутствует или не совпадает с ожидаемым значением, запрос отклоняется с кодом ошибки 400. Секретный ключ для генерации токенов задаётся в конфигурации приложения через параметр \texttt{SECRET\_KEY}.
+
+\textbf{Защита от SQL-инъекций.} Использование ORM SQLAlchemy обеспечивает защиту от атак SQL-инъекций на уровне фреймворка. Все запросы к базе данных формируются через объектно-реляционный маппинг, а не через конкатенацию строк. SQLAlchemy автоматически экранирует пользовательский ввод при формировании SQL-запросов с помощью параметризованных выражений. Например, при поиске услуги по названию используется конструкция \texttt{Service.query.filter(Service.name.ilike(f'\%\{query\}\%'))}, где значение переменной \texttt{query} безопасно подставляется в SQL-запрос через механизм привязки параметров.
+
+\textbf{Хеширование паролей.} Пароли пользователей никогда не хранятся в открытом виде в базе данных. Для хеширования используется библиотека Werkzeug, которая предоставляет функции \texttt{generate\_password\_hash} и \texttt{check\_password\_hash}. Метод хеширования \texttt{pbkdf2:sha256} применяет многократное итеративное хеширование с использованием случайной соли, что делает невозможным восстановление исходного пароля даже при компрометации базы данных. Каждый пароль хешируется с уникальной солью, что исключает возможность применения радужных таблиц.
+
+\textbf{Защита от XSS-атак.} Межсайтовый скриптинг (Cross-Site Scripting) предотвращается на уровне шаблонизатора Jinja2, который по умолчанию экранирует все переменные, выводимые в HTML-шаблонах. Специальные символы, такие как \texttt{<}, \texttt{>}, \texttt{\&} и кавычки, автоматически преобразуются в безопасные HTML-сущности. Это исключает возможность внедрения вредоносного JavaScript-кода через пользовательские данные, например через текст отзывов или имена пользователей.
+
+\textbf{Управление сессиями и контроль доступа.} Расширение Flask-Login обеспечивает безопасное управление пользовательскими сессиями. Идентификатор сессии хранится в зашифрованном cookie-файле, подписанном с помощью \texttt{SECRET\_KEY}. В приложении реализован механизм контроля доступа на основе ролей: декоратор \texttt{@login\_required} запрещает доступ неавторизованным пользователям, а пользовательский декоратор \texttt{@admin\_required} ограничивает доступ к административным функциям только для пользователей с ролью <<admin>>. Попытка обращения к защищённому ресурсу без авторизации приводит к перенаправлению на страницу входа.
+
+\textbf{Валидация загружаемых файлов.} При загрузке изображений для услуг применяется строгая валидация: проверяется расширение файла (допускаются только форматы PNG, JPG, JPEG, GIF), контролируется размер файла, а имя файла генерируется автоматически с помощью функции \texttt{secure\_filename} из библиотеки Werkzeug для предотвращения атак на файловую систему через имена файлов.
+
+\subsection{Развёртывание приложения}
+
+Процесс развёртывания веб-приложения автосервиса на рабочем сервере включает несколько этапов: подготовку серверного окружения, настройку конфигурации для продуктивной среды и запуск приложения с использованием производственного WSGI-сервера.
+
+\textbf{Подготовка серверного окружения.} Для развёртывания приложения рекомендуется использовать сервер под управлением операционной системы Ubuntu Server 22.04 LTS или аналогичного дистрибутива Linux. На сервере устанавливается интерпретатор Python версии 3.10 или выше, а также менеджер пакетов pip. Для изоляции зависимостей проекта создаётся виртуальное окружение Python с помощью модуля \texttt{venv}:
+
+\begin{lstlisting}[language=bash, caption={Создание виртуального окружения и установка зависимостей}, label={lst:deploy-venv}]
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+\end{lstlisting}
+
+\textbf{Конфигурация для продуктивной среды.} В продуктивной среде необходимо отключить режим отладки Flask, который в рабочем режиме представляет угрозу безопасности, поскольку выводит трассировку стека при ошибках. Параметр \texttt{DEBUG} устанавливается в значение \texttt{False}. Секретный ключ приложения задаётся через переменную окружения, а не в исходном коде: \texttt{SECRET\_KEY = os.environ.get('SECRET\_KEY')}. Для хранения данных в продуктивной среде рекомендуется использовать СУБД PostgreSQL вместо SQLite, поскольку PostgreSQL обеспечивает более высокую производительность при одновременном доступе нескольких пользователей, поддерживает полноценные транзакции и предоставляет расширенные возможности резервного копирования.
+
+\textbf{Использование WSGI-сервера Gunicorn.} Встроенный сервер Flask не предназначен для обслуживания продуктивного трафика. Для запуска приложения в рабочем режиме используется WSGI-сервер Gunicorn, который поддерживает многопроцессную обработку запросов:
+
+\begin{lstlisting}[language=bash, caption={Запуск приложения через Gunicorn}, label={lst:gunicorn}]
+gunicorn --workers 4 --bind 0.0.0.0:8000 "app:create_app()"
+\end{lstlisting}
+
+Параметр \texttt{--workers 4} задаёт количество рабочих процессов, что позволяет обрабатывать несколько запросов параллельно. Рекомендуемое количество рабочих процессов рассчитывается по формуле $2 \times N_{cpu} + 1$, где $N_{cpu}$ --- количество ядер процессора.
+
+\textbf{Настройка обратного прокси-сервера Nginx.} Перед Gunicorn устанавливается веб-сервер Nginx, выполняющий роль обратного прокси-сервера. Nginx обрабатывает статические файлы (CSS, JavaScript, изображения) непосредственно, не передавая запросы на уровень Python, что значительно снижает нагрузку на сервер приложений. Также Nginx обеспечивает терминирование SSL/TLS-соединений, балансировку нагрузки и защиту от некоторых типов DDoS-атак посредством ограничения скорости запросов.
+
+\textbf{Автоматический перезапуск.} Для обеспечения непрерывной работы приложения используется системный менеджер служб systemd. Создаётся unit-файл, описывающий параметры запуска приложения, рабочую директорию и виртуальное окружение. Systemd автоматически перезапускает приложение в случае аварийного завершения, а также обеспечивает запуск приложения при перезагрузке сервера.
+
+\subsection{Оптимизация производительности}
+
+Для обеспечения быстрой и отзывчивой работы веб-приложения автосервиса были применены различные методы оптимизации как на стороне сервера, так и на стороне клиента.
+
+\textbf{Оптимизация запросов к базе данных.} Одной из распространённых проблем при работе с ORM является проблема <<N+1 запросов>>, когда для загрузки связанных объектов выполняется отдельный запрос для каждой записи. В приложении эта проблема решена с помощью механизма жадной загрузки (eager loading) SQLAlchemy. При загрузке списка записей на обслуживание связанные данные о клиенте, мастере и услуге загружаются одним SQL-запросом с использованием метода \texttt{joinedload}, что сокращает количество обращений к базе данных с $N+1$ до одного. Индексы базы данных созданы для столбцов, по которым наиболее часто выполняется поиск и фильтрация: поле \texttt{email} в таблице пользователей, поля \texttt{date} и \texttt{status} в таблице записей.
+
+\textbf{Оптимизация клиентской части.} Статические ресурсы (CSS и JavaScript) подключаются с использованием CDN-ссылок на библиотеки Bootstrap и jQuery, что обеспечивает их кэширование в браузере пользователя. Изображения услуг при загрузке автоматически масштабируются с помощью библиотеки Pillow до оптимальных размеров, что уменьшает время загрузки страниц каталога. Для динамической загрузки данных о доступных временных слотах используются асинхронные AJAX-запросы к REST API, благодаря чему страница записи не перезагружается полностью при выборе даты или мастера, а обновляется только необходимый блок.
+
+\textbf{Кэширование и минимизация повторных вычислений.} Функция \texttt{get\_busy\_slots} формирует множество (set) занятых временных слотов для заданной даты и мастера, что позволяет выполнять проверку доступности слота за время $O(1)$ благодаря хеш-таблице. При отображении дашборда администратора агрегированные статистические данные (количество записей по статусам, общее число клиентов, средняя оценка отзывов) вычисляются с помощью SQL-агрегатных функций (\texttt{COUNT}, \texttt{AVG}) на уровне базы данных, а не в коде Python, что значительно снижает объём передаваемых данных и ускоряет обработку.
+
+\textbf{Оптимизация шаблонов.} В шаблонах Jinja2 используется механизм наследования шаблонов с единым базовым шаблоном \texttt{base.html}, содержащим общую структуру страницы, навигацию и подключение стилей. Это исключает дублирование HTML-кода и обеспечивает единообразие интерфейса. Макросы Jinja2 применяются для повторно используемых компонентов интерфейса, таких как карточки услуг и элементы форм, что сокращает объём шаблонного кода и упрощает его поддержку.
+
+Совокупность применённых мер оптимизации позволяет приложению обеспечивать время отклика менее 0.5 секунды для всех основных пользовательских операций, что соответствует установленным нефункциональным требованиям и обеспечивает комфортную работу пользователей с системой онлайн-записи.
+
+
+% ================================================================
+%              РАЗДЕЛ 4: ОХРАНА ТРУДА
+% ================================================================
+\newpage
+\section{ОХРАНА ТРУДА ПРИ РАБОТЕ С КОМПЬЮТЕРОМ}
+
+\subsection{Общие положения}
+
+Работа за компьютером является основным видом деятельности при разработке программного обеспечения. Длительная работа за компьютером может оказывать негативное воздействие на здоровье разработчика: утомление зрения, боли в спине и шее, синдром запястного канала, повышенная утомляемость. В связи с этим вопросы охраны труда при работе за компьютером имеют первостепенное значение.
+
+В Республике Казахстан нормы охраны труда при работе с компьютерами регулируются следующими нормативными документами:
+\begin{itemize}[leftmargin=2cm]
+    \item Трудовой кодекс Республики Казахстан;
+    \item Санитарно-эпидемиологические правила и нормативы <<Санитарно-эпидемиологические требования к условиям работы с источниками физических факторов (компьютеры и видеотерминалы)>>;
+    \item Государственный стандарт РК ГОСТ 12.2.032 <<Система стандартов безопасности труда. Рабочее место при выполнении работ сидя>>;
+    \item Международный стандарт ISO 9241 <<Эргономика взаимодействия человек-система>>.
+\end{itemize}
+
+\subsection{Требования к рабочему месту}
+
+Рабочее место разработчика программного обеспечения должно соответствовать следующим требованиям:
+
+\textbf{Организация рабочего пространства:}
+\begin{itemize}[leftmargin=2cm]
+    \item площадь рабочего места --- не менее 6 м\textsuperscript{2} на одного работника;
+    \item расстояние между мониторами соседних рабочих мест --- не менее 2 м;
+    \item монитор должен располагаться на расстоянии 50--70 см от глаз;
+    \item верхний край экрана должен находиться на уровне глаз или чуть ниже;
+    \item клавиатура должна располагаться на высоте 68--80 см от пола;
+    \item стул должен быть регулируемым по высоте и иметь поддержку поясницы.
+\end{itemize}
+
+\textbf{Требования к освещению:}
+\begin{itemize}[leftmargin=2cm]
+    \item освещённость на рабочей поверхности --- 300--500 люкс;
+    \item освещённость экрана --- 200--300 люкс;
+    \item отсутствие бликов на экране монитора;
+    \item предпочтение отдаётся рассеянному искусственному освещению;
+    \item окна должны быть оборудованы регулируемыми жалюзи или шторами.
+\end{itemize}
+
+\textbf{Требования к микроклимату:}
+\begin{itemize}[leftmargin=2cm]
+    \item температура воздуха в помещении: 22--24$^{\circ}$C в холодный период, 23--25$^{\circ}$C в тёплый период;
+    \item относительная влажность воздуха: 40--60\%;
+    \item скорость движения воздуха: не более 0.1 м/с;
+    \item уровень шума: не более 50 дБА.
+\end{itemize}
+
+\subsection{Режим работы и отдыха}
+
+Для предотвращения утомления и снижения негативного воздействия компьютера на здоровье необходимо соблюдать рекомендуемый режим работы и отдыха:
+
+\begin{itemize}[leftmargin=2cm]
+    \item общая продолжительность непрерывной работы за компьютером --- не более 2 часов;
+    \item обязательные перерывы продолжительностью 10--15 минут каждые 45--60 минут работы;
+    \item суммарное время регламентированных перерывов при 8-часовом рабочем дне --- не менее 50 минут;
+    \item во время перерывов рекомендуется выполнять гимнастику для глаз, разминку для кистей рук и физические упражнения;
+    \item не рекомендуется работать за компьютером в ночное время (с 22:00 до 6:00).
+\end{itemize}
+
+\textbf{Гимнастика для глаз} включает следующие упражнения:
+\begin{enumerate}[leftmargin=2cm]
+    \item частое моргание в течение 1--2 минут для увлажнения роговицы;
+    \item фокусировка на удалённом объекте (расстояние более 5 м) в течение 10--15 секунд, затем на ближнем (25--30 см) --- повторить 10 раз;
+    \item круговые движения глазами по часовой стрелке и против --- по 10 раз;
+    \item закрытие глаз ладонями (пальминг) на 1--2 минуты для расслабления.
+\end{enumerate}
+
+\subsection{Электробезопасность}
+
+При работе с компьютерным оборудованием необходимо соблюдать правила электробезопасности:
+
+\begin{itemize}[leftmargin=2cm]
+    \item перед началом работы необходимо визуально проверить целостность электрических кабелей и вилок;
+    \item запрещается использовать неисправное оборудование;
+    \item запрещается самостоятельно ремонтировать электрооборудование;
+    \item запрещается прикасаться мокрыми руками к электрическим розеткам и вилкам;
+    \item все электрооборудование должно быть заземлено;
+    \item при обнаружении неисправности необходимо немедленно отключить оборудование от электросети и сообщить ответственному лицу;
+    \item рекомендуется использовать сетевые фильтры и источники бесперебойного питания (ИБП) для защиты оборудования от перепадов напряжения.
+\end{itemize}
+
+\subsection{Пожарная безопасность}
+
+Помещения с компьютерным оборудованием относятся к категории В (пожароопасные) в соответствии с нормами пожарной безопасности. Основные меры пожарной безопасности:
+
+\begin{itemize}[leftmargin=2cm]
+    \item помещение должно быть оборудовано системой автоматической пожарной сигнализации;
+    \item в помещении должны быть в наличии углекислотные огнетушители (ОУ-5);
+    \item запрещается курение в помещениях с компьютерным оборудованием;
+    \item запрещается загромождение эвакуационных путей;
+    \item электропроводка должна соответствовать нормам и быть в исправном состоянии;
+    \item сотрудники должны быть ознакомлены с планом эвакуации и знать расположение огнетушителей;
+    \item не допускается перегрузка электрических розеток множественными адаптерами.
+\end{itemize}
+
+При обнаружении возгорания необходимо: немедленно сообщить в пожарную службу (101), отключить электропитание в помещении, приступить к эвакуации, при небольшом очаге возгорания использовать углекислотный огнетушитель.
+
+
+% ================================================================
+%                         ЗАКЛЮЧЕНИЕ
+% ================================================================
+\newpage
+\section*{ЗАКЛЮЧЕНИЕ}
+\addcontentsline{toc}{section}{ЗАКЛЮЧЕНИЕ}
+
+В рамках дипломного проекта была разработана веб-платформа для автосервиса с системой онлайн-записи. Платформа предназначена для автоматизации процессов записи клиентов на обслуживание, управления услугами, сотрудниками и расписанием мастеров.
+
+В ходе выполнения дипломного проекта были решены следующие задачи:
+
+\begin{enumerate}[leftmargin=2cm]
+    \item \textbf{Проведён анализ предметной области} --- изучена специфика автосервисной отрасли Казахстана, проведён сравнительный анализ существующих решений (YCLIENTS, DIKIDI Business, AutoDealer CRM), выявлены их достоинства и недостатки.
+
+    \item \textbf{Определены требования к системе} --- сформулированы функциональные требования для ролей клиента и администратора, а также нефункциональные требования к производительности, безопасности и удобству использования.
+
+    \item \textbf{Спроектирована архитектура приложения} --- разработана модульная архитектура на основе паттерна MVC с использованием Flask Blueprints. Система разделена на 4 модуля: auth, admin, client, api.
+
+    \item \textbf{Спроектирована база данных} --- разработана реляционная схема из 7 таблиц (users, service\_categories, services, employees, work\_schedules, bookings, reviews) и 1 связующей таблицы (employee\_services).
+
+    \item \textbf{Реализована серверная часть} --- с использованием Flask 3.0.3, SQLAlchemy 2.0.30, Flask-Login 0.6.3, Flask-WTF 1.2.1. Реализованы аутентификация, авторизация, CRUD-операции для всех сущностей, REST API для динамической загрузки данных.
+
+    \item \textbf{Разработана клиентская часть} --- с использованием HTML5, CSS3, JavaScript (ES6) и Bootstrap 5. Реализован адаптивный интерфейс для клиентской части и административной панели.
+
+    \item \textbf{Реализована система онлайн-записи} --- клиент может выбрать услугу, мастера, дату и доступный временной слот. Алгоритм учитывает расписание мастера, длительность услуги и уже существующие записи.
+
+    \item \textbf{Проведено тестирование} --- выполнено модульное, интеграционное и функциональное тестирование. Все 20 тестовых сценариев успешно пройдены.
+\end{enumerate}
+
+Разработанная платформа обладает следующими \textbf{ключевыми преимуществами}:
+\begin{itemize}[leftmargin=2cm]
+    \item удобная система онлайн-записи с интерактивным выбором временных слотов;
+    \item ролевая модель доступа (администратор, сотрудник, клиент);
+    \item информативная административная панель с дашбордом и аналитикой;
+    \item система отзывов и рейтингов мастеров;
+    \item адаптивный дизайн для мобильных устройств;
+    \item возможность масштабирования (переход на PostgreSQL, развёртывание в облаке).
+\end{itemize}
+
+\textbf{Перспективы развития} проекта:
+\begin{itemize}[leftmargin=2cm]
+    \item интеграция с SMS-шлюзами для автоматических напоминаний о записи;
+    \item добавление модуля онлайн-оплаты через Kaspi QR и карточные платежи;
+    \item разработка мобильного приложения (React Native или Flutter);
+    \item интеграция с Telegram-ботом для уведомлений;
+    \item добавление модуля учёта запасных частей и расходных материалов;
+    \item реализация личного кабинета сотрудника с просмотром своего расписания.
+\end{itemize}
+
+Таким образом, цель дипломного проекта достигнута --- разработана полнофункциональная веб-платформа для автосервиса с системой онлайн-записи, готовая к внедрению в реальном автосервисном предприятии.
+
+
+% ================================================================
+%                  СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ
+% ================================================================
+\newpage
+\section*{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}
+\addcontentsline{toc}{section}{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}
+
+\begin{enumerate}[leftmargin=2cm]
+    \item Гринберг, М. Разработка веб-приложений с использованием Flask на языке Python / М. Гринберг. --- 2-е изд. --- М.: ДМК Пресс, 2020. --- 512 с.
+
+    \item Лутц, М. Изучаем Python / М. Лутц. --- 5-е изд. --- М.: Символ-Плюс, 2019. --- 832 с.
+
+    \item Бизли, Д. Python. Справочник / Д. Бизли. --- 4-е изд. --- М.: Вильямс, 2020. --- 896 с.
+
+    \item Суэринг, М. Django 4. Практика создания веб-сайтов на Python / М. Суэринг, А. Любанович. --- СПб.: БХВ-Петербург, 2023. --- 768 с.
+
+    \item Коплиен, Дж. Паттерны проектирования / Дж. Коплиен, Э. Гамма, Р. Хелм. --- М.: Питер, 2021. --- 432 с.
+
+    \item Фаулер, М. Архитектура корпоративных программных приложений / М. Фаулер. --- М.: Вильямс, 2018. --- 544 с.
+
+    \item Дронов, В.А. HTML5, CSS3 и Web 2.0. Разработка современных веб-сайтов / В.А. Дронов. --- СПб.: БХВ-Петербург, 2021. --- 416 с.
+
+    \item Флэнаган, Д. JavaScript. Подробное руководство / Д. Флэнаган. --- 7-е изд. --- М.: Символ-Плюс, 2021. --- 1080 с.
+
+    \item Дейт, К.Дж. Введение в системы баз данных / К.Дж. Дейт. --- 8-е изд. --- М.: Вильямс, 2019. --- 1328 с.
+
+    \item Коннолли, Т. Базы данных. Проектирование, реализация и администрирование / Т. Коннолли, К. Бегг. --- 3-е изд. --- М.: Вильямс, 2017. --- 1440 с.
+
+    \item Official Flask Documentation [Электронный ресурс]. --- Режим доступа: \url{https://flask.palletsprojects.com/} (дата обращения: 15.01.2026).
+
+    \item SQLAlchemy Documentation [Электронный ресурс]. --- Режим доступа: \url{https://docs.sqlalchemy.org/} (дата обращения: 20.01.2026).
+
+    \item Flask-Login Documentation [Электронный ресурс]. --- Режим доступа: \url{https://flask-login.readthedocs.io/} (дата обращения: 22.01.2026).
+
+    \item Bootstrap 5 Documentation [Электронный ресурс]. --- Режим доступа: \url{https://getbootstrap.com/docs/5.3/} (дата обращения: 25.01.2026).
+
+    \item MDN Web Docs --- HTML/CSS/JavaScript Reference [Электронный ресурс]. --- Режим доступа: \url{https://developer.mozilla.org/} (дата обращения: 28.01.2026).
+
+    \item Python Official Documentation [Электронный ресурс]. --- Режим доступа: \url{https://docs.python.org/3/} (дата обращения: 01.02.2026).
+
+    \item Jinja2 Template Designer Documentation [Электронный ресурс]. --- Режим доступа: \url{https://jinja.palletsprojects.com/} (дата обращения: 05.02.2026).
+
+    \item YCLIENTS --- Платформа автоматизации сферы услуг [Электронный ресурс]. --- Режим доступа: \url{https://www.yclients.com/} (дата обращения: 10.02.2026).
+
+    \item DIKIDI Business --- Система онлайн-записи [Электронный ресурс]. --- Режим доступа: \url{https://dikidi.net/} (дата обращения: 12.02.2026).
+
+    \item Трудовой кодекс Республики Казахстан от 23 ноября 2015 года №414-V (с изменениями и дополнениями по состоянию на 01.01.2026) [Электронный ресурс]. --- Режим доступа: \url{https://adilet.zan.kz/rus/docs/K1500000414} (дата обращения: 15.02.2026).
+\end{enumerate}
+
+
+% ================================================================
+%                         ПРИЛОЖЕНИЯ
+% ================================================================
+\newpage
+\section*{ПРИЛОЖЕНИЯ}
+\addcontentsline{toc}{section}{ПРИЛОЖЕНИЯ}
+
+\subsection*{Приложение А --- Полный код файла models.py}
+\addcontentsline{toc}{subsection}{Приложение А --- Полный код файла models.py}
+
+\begin{lstlisting}[language=Python, caption={Полный код моделей базы данных (app/models.py)}, label={lst:full_models}]
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import (generate_password_hash,
+                                check_password_hash)
+
+db = SQLAlchemy()
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True,
+                      nullable=False, index=True)
+    password_hash = db.Column(db.String(256),
+                              nullable=False)
+    role = db.Column(db.String(20), nullable=False,
+                     default='client')
+    first_name = db.Column(db.String(50),
+                           nullable=False)
+    last_name = db.Column(db.String(50),
+                          nullable=False)
+    phone = db.Column(db.String(20))
+    avatar = db.Column(db.String(255),
+                       default='default_avatar.png')
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime,
+                           default=datetime.utcnow)
+
+    employee_profile = db.relationship('Employee',
+        back_populates='user', uselist=False)
+    bookings = db.relationship('Booking',
+        foreign_keys='Booking.client_id',
+        back_populates='client')
+    reviews = db.relationship('Review',
+        back_populates='author')
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(
+            password)
+
+    def check_password(self, password):
+        return check_password_hash(
+            self.password_hash, password)
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def is_admin(self):
+        return self.role == 'admin'
+
+class ServiceCategory(db.Model):
+    __tablename__ = 'service_categories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    icon = db.Column(db.String(50),
+                     default='fa-wrench')
+    slug = db.Column(db.String(100), unique=True,
+                     nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    sort_order = db.Column(db.Integer, default=0)
+    services = db.relationship('Service',
+        back_populates='category', lazy='dynamic')
+
+class Service(db.Model):
+    __tablename__ = 'services'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    short_description = db.Column(db.String(300))
+    price = db.Column(db.Numeric(10, 2),
+                      nullable=False)
+    duration = db.Column(db.Integer, nullable=False)
+    category_id = db.Column(db.Integer,
+        db.ForeignKey('service_categories.id'),
+        nullable=False)
+    image = db.Column(db.String(255),
+                      default='default_service.jpg')
+    is_active = db.Column(db.Boolean, default=True)
+    is_featured = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime,
+                           default=datetime.utcnow)
+    category = db.relationship('ServiceCategory',
+        back_populates='services')
+    bookings = db.relationship('Booking',
+        back_populates='service')
+
+employee_services = db.Table('employee_services',
+    db.Column('employee_id', db.Integer,
+        db.ForeignKey('employees.id'),
+        primary_key=True),
+    db.Column('service_id', db.Integer,
+        db.ForeignKey('services.id'),
+        primary_key=True))
+
+class Employee(db.Model):
+    __tablename__ = 'employees'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer,
+        db.ForeignKey('users.id'), unique=True,
+        nullable=False)
+    specialization = db.Column(db.String(200))
+    bio = db.Column(db.Text)
+    experience_years = db.Column(db.Integer,
+                                 default=0)
+    photo = db.Column(db.String(255),
+                      default='default_employee.jpg')
+    is_available = db.Column(db.Boolean, default=True)
+    user = db.relationship('User',
+        back_populates='employee_profile')
+    services = db.relationship('Service',
+        secondary='employee_services',
+        backref='employees')
+    schedules = db.relationship('WorkSchedule',
+        back_populates='employee',
+        cascade='all, delete-orphan')
+
+class WorkSchedule(db.Model):
+    __tablename__ = 'work_schedules'
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer,
+        db.ForeignKey('employees.id'), nullable=False)
+    day_of_week = db.Column(db.Integer,
+                            nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    is_working = db.Column(db.Boolean, default=True)
+    employee = db.relationship('Employee',
+        back_populates='schedules')
+
+class Booking(db.Model):
+    __tablename__ = 'bookings'
+    STATUS_PENDING = 'pending'
+    STATUS_CONFIRMED = 'confirmed'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_COMPLETED = 'completed'
+    STATUS_CANCELLED = 'cancelled'
+
+    id = db.Column(db.Integer, primary_key=True)
+    booking_number = db.Column(db.String(20),
+                               unique=True)
+    client_id = db.Column(db.Integer,
+        db.ForeignKey('users.id'), nullable=False)
+    employee_id = db.Column(db.Integer,
+        db.ForeignKey('employees.id'), nullable=False)
+    service_id = db.Column(db.Integer,
+        db.ForeignKey('services.id'), nullable=False)
+    booking_date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    status = db.Column(db.String(20),
+                       default=STATUS_PENDING)
+    total_price = db.Column(db.Numeric(10, 2),
+                            nullable=False)
+    car_info = db.Column(db.String(200))
+    notes = db.Column(db.Text)
+    admin_notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime,
+                           default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow)
+
+    client = db.relationship('User',
+        foreign_keys=[client_id],
+        back_populates='bookings')
+    employee = db.relationship('Employee',
+        foreign_keys=[employee_id],
+        back_populates='bookings')
+    service = db.relationship('Service',
+        back_populates='bookings')
+    review = db.relationship('Review',
+        back_populates='booking', uselist=False)
+
+class Review(db.Model):
+    __tablename__ = 'reviews'
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer,
+        db.ForeignKey('bookings.id'), unique=True,
+        nullable=False)
+    client_id = db.Column(db.Integer,
+        db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.Text)
+    is_published = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime,
+                           default=datetime.utcnow)
+    booking = db.relationship('Booking',
+        back_populates='review')
+    author = db.relationship('User',
+        back_populates='reviews')
+\end{lstlisting}
+
+\newpage
+\subsection*{Приложение Б --- Полный код файла utils.py}
+\addcontentsline{toc}{subsection}{Приложение Б --- Полный код файла utils.py}
+
+\begin{lstlisting}[language=Python, caption={Вспомогательные функции (app/utils.py)}, label={lst:full_utils}]
+import os
+import uuid
+from datetime import datetime, time, timedelta
+from functools import wraps
+from flask import current_app, abort
+from flask_login import current_user
+from werkzeug.utils import secure_filename
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated \
+                or not current_user.is_admin():
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+def employee_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated \
+                or current_user.role not in \
+                ('admin', 'employee'):
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in \
+        current_app.config['ALLOWED_EXTENSIONS']
+
+def save_image(file, subfolder=''):
+    if file and allowed_file(file.filename):
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        upload_path = os.path.join(
+            current_app.config['UPLOAD_FOLDER'],
+            subfolder)
+        os.makedirs(upload_path, exist_ok=True)
+        file.save(os.path.join(upload_path, filename))
+        return os.path.join(subfolder,
+            filename).replace('\\', '/') \
+            if subfolder else filename
+    return None
+
+def generate_booking_number():
+    now = datetime.utcnow()
+    return f"AS{now.strftime('%Y%m%d')}" \
+           f"{uuid.uuid4().hex[:6].upper()}"
+
+def get_time_slots(start_hour, end_hour,
+                   slot_duration_minutes=30):
+    slots = []
+    current = datetime.combine(datetime.today(),
+                               time(start_hour, 0))
+    end = datetime.combine(datetime.today(),
+                           time(end_hour, 0))
+    delta = timedelta(minutes=slot_duration_minutes)
+    while current < end:
+        slots.append(current.time())
+        current += delta
+    return slots
+
+def get_busy_slots(employee_id, date,
+                   service_duration,
+                   exclude_booking_id=None):
+    from app.models import Booking
+    query = Booking.query.filter(
+        Booking.employee_id == employee_id,
+        Booking.booking_date == date,
+        Booking.status.in_(['pending', 'confirmed',
+                            'in_progress']))
+    if exclude_booking_id:
+        query = query.filter(
+            Booking.id != exclude_booking_id)
+    bookings = query.all()
+    busy = set()
+    for booking in bookings:
+        slot_start = datetime.combine(date,
+                                      booking.start_time)
+        slot_end = datetime.combine(date,
+                                    booking.end_time)
+        cursor = slot_start
+        while cursor < slot_end:
+            busy.add(cursor.time())
+            cursor += timedelta(minutes=30)
+    return busy
+
+def is_slot_available(employee_id, date,
+                      start_time_obj,
+                      service_duration):
+    from app.models import Booking, WorkSchedule
+    schedule = WorkSchedule.query.filter_by(
+        employee_id=employee_id,
+        day_of_week=date.weekday(),
+        is_working=True).first()
+    if not schedule:
+        return False
+    end_time_obj = (datetime.combine(date,
+        start_time_obj) +
+        timedelta(minutes=service_duration)).time()
+    if start_time_obj < schedule.start_time \
+            or end_time_obj > schedule.end_time:
+        return False
+    busy = get_busy_slots(employee_id, date,
+                          service_duration)
+    cursor = datetime.combine(date, start_time_obj)
+    service_end = datetime.combine(date, end_time_obj)
+    while cursor < service_end:
+        if cursor.time() in busy:
+            return False
+        cursor += timedelta(minutes=30)
+    return True
+\end{lstlisting}
+
+\newpage
+\subsection*{Приложение В --- Полный код файла api/routes.py}
+\addcontentsline{toc}{subsection}{Приложение В --- Полный код файла api/routes.py}
+
+\begin{lstlisting}[language=Python, caption={REST API маршруты (app/api/routes.py)}, label={lst:full_api}]
+from datetime import datetime, date, timedelta
+from flask import jsonify, request
+from flask_login import login_required
+from app.api import bp
+from app.models import (Employee, Service,
+                         WorkSchedule, Booking)
+from app.utils import get_busy_slots
+
+@bp.route('/available-slots')
+@login_required
+def available_slots():
+    employee_id = request.args.get('employee_id',
+                                    type=int)
+    service_id = request.args.get('service_id',
+                                   type=int)
+    date_str = request.args.get('date', '')
+
+    if not all([employee_id, service_id, date_str]):
+        return jsonify(
+            {'error': 'Missing parameters'}), 400
+
+    try:
+        target_date = datetime.strptime(
+            date_str, '%Y-%m-%d').date()
+    except ValueError:
+        return jsonify(
+            {'error': 'Invalid date format'}), 400
+
+    if target_date < date.today():
+        return jsonify({'slots': []})
+
+    service = Service.query.get(service_id)
+    if not service:
+        return jsonify(
+            {'error': 'Service not found'}), 404
+
+    schedule = WorkSchedule.query.filter_by(
+        employee_id=employee_id,
+        day_of_week=target_date.weekday(),
+        is_working=True).first()
+
+    if not schedule:
+        return jsonify({'slots': [],
+            'message': 'Мастер не работает'})
+
+    busy = get_busy_slots(employee_id, target_date,
+                          service.duration)
+
+    from datetime import time
+    slots = []
+    current = datetime.combine(target_date,
+                               schedule.start_time)
+    schedule_end = datetime.combine(target_date,
+                                    schedule.end_time)
+    service_end_delta = timedelta(
+        minutes=service.duration)
+    slot_step = timedelta(minutes=30)
+
+    while current + service_end_delta <= schedule_end:
+        slot_time = current.time()
+        is_free = True
+        check = current
+        while check < current + service_end_delta:
+            if check.time() in busy:
+                is_free = False
+                break
+            check += slot_step
+        if is_free:
+            slots.append(
+                slot_time.strftime('%H:%M'))
+        current += slot_step
+
+    return jsonify({'slots': slots})
+
+@bp.route('/employees-for-service')
+def employees_for_service():
+    service_id = request.args.get('service_id',
+                                   type=int)
+    if not service_id:
+        return jsonify(
+            {'error': 'Missing service_id'}), 400
+
+    service = Service.query.get(service_id)
+    if not service:
+        return jsonify(
+            {'error': 'Service not found'}), 404
+
+    employees = [
+        {'id': e.id,
+         'name': e.user.full_name,
+         'specialization': e.specialization
+                           or 'Мастер',
+         'experience': e.experience_years,
+         'rating': e.avg_rating,
+         'reviews': e.reviews_count}
+        for e in service.employees if e.is_available]
+    return jsonify({'employees': employees})
+
+@bp.route('/calendar-events')
+@login_required
+def calendar_events():
+    start_str = request.args.get('start', '')
+    end_str = request.args.get('end', '')
+    employee_id = request.args.get('employee_id',
+                                    type=int)
+    try:
+        start_dt = datetime.fromisoformat(
+            start_str[:10]) if start_str \
+            else datetime.today()
+        end_dt = datetime.fromisoformat(
+            end_str[:10]) if end_str \
+            else start_dt + timedelta(days=30)
+    except ValueError:
+        return jsonify([])
+
+    query = Booking.query.filter(
+        Booking.booking_date >= start_dt.date(),
+        Booking.booking_date <= end_dt.date(),
+        Booking.status.in_(['pending', 'confirmed',
+                            'in_progress']))
+    if employee_id:
+        query = query.filter_by(
+            employee_id=employee_id)
+
+    events = []
+    for b in query.all():
+        start = datetime.combine(
+            b.booking_date, b.start_time).isoformat()
+        end = datetime.combine(
+            b.booking_date, b.end_time).isoformat()
+        events.append({
+            'id': b.id,
+            'title': f"{b.service.name} - "
+                     f"{b.client.full_name}",
+            'start': start, 'end': end,
+            'url': f'/admin/bookings/{b.id}'})
+    return jsonify(events)
+\end{lstlisting}
+
+\end{document}

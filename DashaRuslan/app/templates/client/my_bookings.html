@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="bg-dark text-white py-4">
+    <div class="container">
+        <h2 class="fw-bold mb-1">Мои записи</h2>
+        <p class="text-muted mb-0">История ваших обращений</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Filter tabs -->
+            <div class="d-flex gap-2 mb-4 flex-wrap">
+                <a href="{{ url_for('client.my_bookings') }}"
+                   class="btn btn-sm {% if not current_status %}btn-dark{% else %}btn-outline-secondary{% endif %}">
+                    Все
+                </a>
+                <a href="{{ url_for('client.my_bookings', status='pending') }}"
+                   class="btn btn-sm {% if current_status=='pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+                    Ожидают
+                </a>
+                <a href="{{ url_for('client.my_bookings', status='confirmed') }}"
+                   class="btn btn-sm {% if current_status=='confirmed' %}btn-info text-dark{% else %}btn-outline-info{% endif %}">
+                    Подтверждены
+                </a>
+                <a href="{{ url_for('client.my_bookings', status='in_progress') }}"
+                   class="btn btn-sm {% if current_status=='in_progress' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    В работе
+                </a>
+                <a href="{{ url_for('client.my_bookings', status='completed') }}"
+                   class="btn btn-sm {% if current_status=='completed' %}btn-success{% else %}btn-outline-success{% endif %}">
+                    Завершены
+                </a>
+                <a href="{{ url_for('client.my_bookings', status='cancelled') }}"
+                   class="btn btn-sm {% if current_status=='cancelled' %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+                    Отменены
+                </a>
+            </div>
+
+            {% if bookings %}
+            <div class="row g-3">
+                {% for b in bookings %}
+                <div class="col-12 col-lg-6">
+                    <div class="card border-0 shadow-sm h-100 {% if b.status == 'cancelled' %}opacity-75{% endif %}">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <div class="text-muted small mb-1"># {{ b.booking_number }}</div>
+                                    <h5 class="fw-bold mb-0">{{ b.service.name }}</h5>
+                                </div>
+                                <span class="badge bg-{{ b.status_badge }} fs-6 px-3">{{ b.status_display }}</span>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <div class="text-muted small">Мастер</div>
+                                    <div class="fw-medium">{{ b.employee.user.full_name }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small">Дата и время</div>
+                                    <div class="fw-medium">{{ b.booking_date | format_date }}, {{ b.start_time | format_time }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small">Стоимость</div>
+                                    <div class="fw-bold text-success">{{ b.total_price | format_price }} ₸</div>
+                                </div>
+                                {% if b.car_info %}
+                                <div class="col-6">
+                                    <div class="text-muted small">Автомобиль</div>
+                                    <div class="small">{{ b.car_info }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('client.booking_detail', booking_id=b.id) }}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Подробнее
+                                </a>
+                                <div class="d-flex gap-2">
+                                    {% if b.can_review() %}
+                                    <a href="{{ url_for('client.booking_detail', booking_id=b.id) }}"
+                                       class="btn btn-sm btn-warning fw-bold">
+                                        <i class="fas fa-star me-1"></i>Оставить отзыв
+                                    </a>
+                                    {% endif %}
+                                    {% if b.review %}
+                                    <span class="text-warning small"><i class="fas fa-star me-1"></i>{{ b.review.rating }}/5</span>
+                                    {% endif %}
+                                    {% if b.can_cancel() %}
+                                    <form method="POST" action="{{ url_for('client.booking_cancel', booking_id=b.id) }}"
+                                          onsubmit="return confirm('Отменить запись?')">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Отменить</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-xmark fs-1 text-muted mb-3 d-block opacity-25"></i>
+                <h5 class="text-muted">Записей нет</h5>
+                <p class="text-muted">Запишитесь на услугу прямо сейчас</p>
+                <a href="{{ url_for('client.booking') }}" class="btn btn-warning btn-lg fw-bold px-5">
+                    <i class="fas fa-calendar-plus me-2"></i>Записаться
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

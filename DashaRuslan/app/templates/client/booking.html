@@ -1,0 +1,416 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+{% block content %}
+<div class="bg-dark text-white py-4">
+    <div class="container">
+        <h2 class="fw-bold mb-1">Запись на услугу</h2>
+        <p class="text-muted mb-0">Выберите услугу, мастера, дату и время</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-5 justify-content-center">
+        <div class="col-xl-8">
+            <!-- Steps indicator -->
+            <div class="d-flex align-items-center gap-0 mb-5">
+                <div class="step-indicator active">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Услуга</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-indicator" id="step2ind">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Мастер</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-indicator" id="step3ind">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Дата и время</div>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-indicator" id="step4ind">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Подтверждение</div>
+                </div>
+            </div>
+
+            <form method="POST" id="bookingForm" novalidate>
+                {{ form.hidden_tag() }}
+                {{ form.service_id(id="serviceIdHidden") }}
+                {{ form.start_time(id="startTimeHidden") }}
+
+                <!-- Step 1: Service -->
+                <div class="booking-step" id="step1">
+                    <h4 class="fw-bold mb-4">Выберите услугу</h4>
+                    {% if service %}
+                    <!-- Pre-selected service -->
+                    <div class="card border-2 border-warning shadow-sm mb-3">
+                        <div class="card-body d-flex align-items-center gap-3 p-3">
+                            <div class="service-icon-box">
+                                <i class="fas {{ service.category.icon }}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-0">{{ service.name }}</h6>
+                                <div class="text-muted small">{{ service.duration_display }} • {{ service.price | format_price }} ₸</div>
+                            </div>
+                            <i class="fas fa-check-circle text-warning fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <a href="{{ url_for('client.services') }}" class="btn btn-sm btn-outline-secondary">Выбрать другую услугу</a>
+                    </div>
+                    {% else %}
+                    <div class="mb-4">
+                        <input type="text" id="serviceSearch" class="form-control form-control-lg mb-3"
+                               placeholder="Поиск услуги...">
+                        <div class="services-list" style="max-height:400px;overflow-y:auto;">
+                            {% for svc in all_services %}
+                            <div class="card border-0 shadow-sm mb-2 service-option"
+                                 data-id="{{ svc.id }}"
+                                 data-price="{{ svc.price }}"
+                                 data-name="{{ svc.name }}"
+                                 data-duration="{{ svc.duration_display }}"
+                                 data-search="{{ svc.name|lower }} {{ svc.category.name|lower }}">
+                                <div class="card-body d-flex align-items-center gap-3 p-3" style="cursor:pointer;">
+                                    <div class="service-icon-box" style="width:44px;height:44px;font-size:.9rem;">
+                                        <i class="fas {{ svc.category.icon }}"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-medium">{{ svc.name }}</div>
+                                        <div class="text-muted small">{{ svc.category.name }} • {{ svc.duration_display }}</div>
+                                    </div>
+                                    <div class="text-success fw-bold">{{ svc.price | format_price }} ₸</div>
+                                    <i class="fas fa-check-circle text-warning d-none selected-icon"></i>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <button type="button" class="btn btn-warning btn-lg fw-bold px-5" id="nextStep1"
+                            {% if not service %}disabled{% endif %}>
+                        Далее <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+
+                <!-- Step 2: Employee -->
+                <div class="booking-step d-none" id="step2">
+                    <h4 class="fw-bold mb-4">Выберите мастера</h4>
+                    <div id="employeesList">
+                        {% for emp in available_employees %}
+                        <div class="card border-0 shadow-sm mb-3 employee-option" data-id="{{ emp.id }}"
+                             style="cursor:pointer;">
+                            <div class="card-body d-flex align-items-center gap-3 p-3">
+                                {% if emp.photo and emp.photo != 'default_employee.jpg' %}
+                                <img src="{{ url_for('static', filename='uploads/' + emp.photo) }}"
+                                     class="rounded-circle" width="60" height="60" style="object-fit:cover;flex-shrink:0;">
+                                {% else %}
+                                <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center fw-bold text-dark"
+                                     style="width:60px;height:60px;flex-shrink:0;">
+                                    {{ emp.user.first_name[0] }}{{ emp.user.last_name[0] }}
+                                </div>
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">{{ emp.user.full_name }}</div>
+                                    <div class="text-muted small">{{ emp.specialization or 'Мастер' }}</div>
+                                    {% if emp.experience_years %}
+                                    <div class="text-muted small">Опыт: {{ emp.experience_years }} лет</div>
+                                    {% endif %}
+                                    {% if emp.avg_rating %}
+                                    <div class="text-warning small">★ {{ emp.avg_rating }} ({{ emp.reviews_count }} отз.)</div>
+                                    {% endif %}
+                                </div>
+                                <i class="fas fa-check-circle text-warning fs-4 d-none selected-icon"></i>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-user-times fs-2 mb-2 d-block opacity-25"></i>
+                            Нет доступных мастеров для этой услуги
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {{ form.employee_id(id="employeeIdField", class="d-none") }}
+                    <div class="d-flex gap-3 mt-3">
+                        <button type="button" class="btn btn-outline-secondary" id="backStep2">
+                            <i class="fas fa-arrow-left me-2"></i>Назад
+                        </button>
+                        <button type="button" class="btn btn-warning btn-lg fw-bold px-5" id="nextStep2" disabled>
+                            Далее <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Date & Time -->
+                <div class="booking-step d-none" id="step3">
+                    <h4 class="fw-bold mb-4">Выберите дату и время</h4>
+                    <div class="row g-4">
+                        <div class="col-md-5">
+                            <label class="form-label fw-medium">Дата записи</label>
+                            {{ form.booking_date(class="form-control form-control-lg", id="bookingDatePicker") }}
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label fw-medium">Доступное время</label>
+                            <div id="timeSlotsContainer">
+                                <p class="text-muted small">Выберите дату для отображения доступного времени</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn btn-outline-secondary" id="backStep3">
+                            <i class="fas fa-arrow-left me-2"></i>Назад
+                        </button>
+                        <button type="button" class="btn btn-warning btn-lg fw-bold px-5" id="nextStep3" disabled>
+                            Далее <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Confirmation -->
+                <div class="booking-step d-none" id="step4">
+                    <h4 class="fw-bold mb-4">Подтверждение записи</h4>
+                    <!-- Summary -->
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3 text-muted text-uppercase small">Детали записи</h6>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="text-muted small">Услуга</div>
+                                    <div class="fw-bold" id="summaryService">—</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small">Мастер</div>
+                                    <div class="fw-bold" id="summaryEmployee">—</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small">Дата</div>
+                                    <div class="fw-bold" id="summaryDate">—</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small">Время</div>
+                                    <div class="fw-bold" id="summaryTime">—</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small">Стоимость</div>
+                                    <div class="fw-bold text-success fs-5" id="summaryPrice">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Автомобиль (марка, модель, год)</label>
+                        {{ form.car_info(class="form-control", placeholder="напр. Toyota Camry 2020") }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Дополнительные пожелания</label>
+                        {{ form.notes(class="form-control", rows=3, placeholder="Опишите проблему или дополнительные пожелания...") }}
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="button" class="btn btn-outline-secondary" id="backStep4">
+                            <i class="fas fa-arrow-left me-2"></i>Назад
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg fw-bold px-5">
+                            <i class="fas fa-calendar-check me-2"></i>Подтвердить запись
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+<script>
+// Booking wizard state
+const state = {
+    serviceId: '{{ service.id if service else "" }}',
+    serviceName: '{{ service.name if service else "" }}',
+    servicePrice: '{{ service.price | format_price if service else "" }}',
+    employeeId: '{{ form.employee_id.data or "" }}',
+    employeeName: '',
+    date: '',
+    time: ''
+};
+
+// Init flatpickr
+const datePicker = flatpickr('#bookingDatePicker', {
+    locale: 'ru',
+    minDate: 'today',
+    maxDate: new Date().fp_incr(30),
+    dateFormat: 'Y-m-d',
+    onChange: (selectedDates, dateStr) => {
+        state.date = dateStr;
+        loadTimeSlots();
+        document.getElementById('nextStep3').disabled = !state.time;
+    }
+});
+
+// Service selection (if no pre-selected service)
+document.querySelectorAll('.service-option').forEach(card => {
+    card.addEventListener('click', () => {
+        document.querySelectorAll('.service-option').forEach(c => {
+            c.classList.remove('border-warning');
+            c.querySelector('.selected-icon')?.classList.add('d-none');
+        });
+        card.classList.add('border-warning');
+        card.querySelector('.selected-icon')?.classList.remove('d-none');
+        state.serviceId = card.dataset.id;
+        state.serviceName = card.dataset.name;
+        state.servicePrice = card.dataset.price;
+        document.getElementById('nextStep1').disabled = false;
+
+        // Load employees for this service
+        fetch(`/api/employees-for-service?service_id=${state.serviceId}`)
+            .then(r => r.json())
+            .then(data => {
+                const container = document.getElementById('employeesList');
+                if (data.employees && data.employees.length) {
+                    container.innerHTML = data.employees.map(emp => `
+                        <div class="card border-0 shadow-sm mb-3 employee-option" data-id="${emp.id}" data-name="${emp.name}" style="cursor:pointer;">
+                            <div class="card-body d-flex align-items-center gap-3 p-3">
+                                <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center fw-bold text-dark"
+                                     style="width:60px;height:60px;flex-shrink:0;font-size:1.2rem;">
+                                    ${emp.name.split(' ').map(n=>n[0]).join('')}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">${emp.name}</div>
+                                    <div class="text-muted small">${emp.specialization}</div>
+                                    ${emp.rating ? `<div class="text-warning small">★ ${emp.rating} (${emp.reviews} отз.)</div>` : ''}
+                                </div>
+                                <i class="fas fa-check-circle text-warning fs-4 d-none selected-icon"></i>
+                            </div>
+                        </div>
+                    `).join('');
+                    initEmployeeCards();
+                } else {
+                    container.innerHTML = '<p class="text-muted text-center py-3">Нет доступных мастеров</p>';
+                }
+            });
+    });
+});
+
+// Service search
+const serviceSearch = document.getElementById('serviceSearch');
+if (serviceSearch) {
+    serviceSearch.addEventListener('input', () => {
+        const q = serviceSearch.value.toLowerCase();
+        document.querySelectorAll('.service-option').forEach(card => {
+            card.style.display = card.dataset.search.includes(q) ? '' : 'none';
+        });
+    });
+}
+
+function initEmployeeCards() {
+    document.querySelectorAll('.employee-option').forEach(card => {
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.employee-option').forEach(c => {
+                c.classList.remove('border-warning');
+                c.querySelector('.selected-icon')?.classList.add('d-none');
+            });
+            card.classList.add('border-warning');
+            card.querySelector('.selected-icon')?.classList.remove('d-none');
+            state.employeeId = card.dataset.id;
+            state.employeeName = card.dataset.name || card.querySelector('.fw-bold')?.textContent || '';
+            document.getElementById('employeeIdField').value = state.employeeId;
+            document.getElementById('nextStep2').disabled = false;
+        });
+    });
+}
+initEmployeeCards();
+
+// Pre-select employee if passed in URL
+{% if form.employee_id.data %}
+const preEmp = document.querySelector(`.employee-option[data-id="{{ form.employee_id.data }}"]`);
+if (preEmp) {
+    preEmp.click();
+}
+{% endif %}
+
+function loadTimeSlots() {
+    if (!state.serviceId || !state.employeeId || !state.date) return;
+    const container = document.getElementById('timeSlotsContainer');
+    container.innerHTML = '<div class="text-muted">Загрузка...</div>';
+    fetch(`/api/available-slots?employee_id=${state.employeeId}&service_id=${state.serviceId}&date=${state.date}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.slots && data.slots.length) {
+                container.innerHTML = '<div class="d-flex flex-wrap gap-2">' +
+                    data.slots.map(slot => `
+                        <button type="button" class="btn btn-outline-secondary time-slot" data-time="${slot}">
+                            ${slot}
+                        </button>
+                    `).join('') + '</div>';
+                container.querySelectorAll('.time-slot').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        container.querySelectorAll('.time-slot').forEach(b => b.classList.remove('btn-warning', 'active'));
+                        btn.classList.remove('btn-outline-secondary');
+                        btn.classList.add('btn-warning', 'active');
+                        state.time = btn.dataset.time;
+                        document.getElementById('startTimeHidden').value = state.time;
+                        document.getElementById('nextStep3').disabled = false;
+                    });
+                });
+            } else {
+                container.innerHTML = `<div class="alert alert-warning">${data.message || 'Нет доступного времени на эту дату'}</div>`;
+                state.time = '';
+            }
+        });
+}
+
+// Step navigation
+function showStep(n) {
+    document.querySelectorAll('.booking-step').forEach(s => s.classList.add('d-none'));
+    document.getElementById('step' + n).classList.remove('d-none');
+    [1,2,3,4].forEach(i => {
+        const ind = document.getElementById('step' + i + 'ind') || document.querySelector(`.step-indicator:nth-child(${i*2-1})`);
+    });
+}
+
+function updateSummary() {
+    document.getElementById('summaryService').textContent = state.serviceName || '—';
+    document.getElementById('summaryEmployee').textContent = state.employeeName || '—';
+    document.getElementById('summaryDate').textContent = state.date || '—';
+    document.getElementById('summaryTime').textContent = state.time || '—';
+    document.getElementById('summaryPrice').textContent = state.servicePrice ? state.servicePrice + ' ₸' : '—';
+}
+
+document.getElementById('nextStep1')?.addEventListener('click', () => {
+    document.getElementById('serviceIdHidden').value = state.serviceId;
+    document.getElementById('step1').classList.add('d-none');
+    document.getElementById('step2').classList.remove('d-none');
+});
+document.getElementById('nextStep2')?.addEventListener('click', () => {
+    document.getElementById('step2').classList.add('d-none');
+    document.getElementById('step3').classList.remove('d-none');
+});
+document.getElementById('nextStep3')?.addEventListener('click', () => {
+    document.getElementById('step3').classList.add('d-none');
+    document.getElementById('step4').classList.remove('d-none');
+    updateSummary();
+});
+document.getElementById('backStep2')?.addEventListener('click', () => {
+    document.getElementById('step2').classList.add('d-none');
+    document.getElementById('step1').classList.remove('d-none');
+});
+document.getElementById('backStep3')?.addEventListener('click', () => {
+    document.getElementById('step3').classList.add('d-none');
+    document.getElementById('step2').classList.remove('d-none');
+});
+document.getElementById('backStep4')?.addEventListener('click', () => {
+    document.getElementById('step4').classList.add('d-none');
+    document.getElementById('step3').classList.remove('d-none');
+});
+
+// If service pre-selected, initialize employee step
+{% if service %}
+document.getElementById('serviceIdHidden').value = '{{ service.id }}';
+{% endif %}
+</script>
+{% endblock %}

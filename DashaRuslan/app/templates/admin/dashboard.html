@@ -1,0 +1,187 @@
+{% extends "admin/base.html" %}
+{% block content %}
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="stat-card bg-primary">
+            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-value">{{ stats.total_bookings }}</div>
+            <div class="stat-label">Всего записей</div>
+            <div class="stat-sub">Сегодня: {{ stats.today_bookings }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card bg-warning text-dark">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-value">{{ stats.pending_bookings }}</div>
+            <div class="stat-label">Ожидают подтверждения</div>
+            <div class="stat-sub">За месяц: {{ stats.month_bookings }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card bg-success">
+            <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-value">{{ stats.month_revenue | format_price }}</div>
+            <div class="stat-label">Выручка за месяц, ₸</div>
+            <div class="stat-sub">Всего: {{ stats.total_revenue | format_price }} ₸</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card bg-info">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-value">{{ stats.total_clients }}</div>
+            <div class="stat-label">Клиентов</div>
+            <div class="stat-sub">Мастеров: {{ stats.total_employees }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Revenue Chart -->
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h6 class="fw-bold mb-0">Выручка за последние 6 месяцев</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Bookings by Status -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h6 class="fw-bold mb-0">Записи по статусам</h6>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <canvas id="statusChart" style="max-height:220px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Today's Schedule -->
+    <div class="col-xl-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between">
+                <h6 class="fw-bold mb-0">Расписание на сегодня</h6>
+                <a href="{{ url_for('admin.bookings', date=now.strftime('%Y-%m-%d') if now else '') }}" class="btn btn-sm btn-outline-primary">Все</a>
+            </div>
+            <div class="card-body p-0">
+                {% if today_bookings %}
+                <div class="list-group list-group-flush">
+                    {% for b in today_bookings %}
+                    <a href="{{ url_for('admin.booking_detail', booking_id=b.id) }}"
+                       class="list-group-item list-group-item-action px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="fw-medium small">{{ b.start_time | format_time }} — {{ b.end_time | format_time }}</div>
+                                <div class="fw-bold">{{ b.service.name }}</div>
+                                <div class="text-muted small">{{ b.client.full_name }}</div>
+                            </div>
+                            <span class="badge bg-{{ b.status_badge }}">{{ b.status_display }}</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-calendar-day fs-1 mb-3 d-block opacity-25"></i>
+                    Записей на сегодня нет
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Recent Bookings -->
+    <div class="col-xl-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between">
+                <h6 class="fw-bold mb-0">Последние записи</h6>
+                <a href="{{ url_for('admin.bookings') }}" class="btn btn-sm btn-outline-primary">Все записи</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">№</th>
+                                <th>Клиент</th>
+                                <th>Услуга</th>
+                                <th>Дата</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in recent_bookings %}
+                            <tr onclick="location.href='{{ url_for('admin.booking_detail', booking_id=b.id) }}'" style="cursor:pointer;">
+                                <td class="ps-4 text-muted small">{{ b.booking_number }}</td>
+                                <td>
+                                    <div class="fw-medium">{{ b.client.full_name }}</div>
+                                    <div class="text-muted small">{{ b.client.phone or '' }}</div>
+                                </td>
+                                <td class="small">{{ b.service.name }}</td>
+                                <td class="small">{{ b.booking_date | format_date }}<br>{{ b.start_time | format_time }}</td>
+                                <td><span class="badge bg-{{ b.status_badge }}">{{ b.status_display }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const chartData = {{ chart_data | tojson }};
+const statusData = {{ status_chart | tojson }};
+
+// Revenue chart
+new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+        labels: chartData.map(d => d.month),
+        datasets: [{
+            label: 'Выручка (₸)',
+            data: chartData.map(d => d.revenue),
+            backgroundColor: 'rgba(255, 193, 7, 0.7)',
+            borderColor: 'rgb(255, 193, 7)',
+            borderWidth: 1,
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Status chart
+const statusLabels = { pending:'Ожидание', confirmed:'Подтверждено', in_progress:'В работе', completed:'Завершено', cancelled:'Отменено' };
+const statusColors = { pending:'#ffc107', confirmed:'#0dcaf0', in_progress:'#0d6efd', completed:'#198754', cancelled:'#dc3545' };
+const keys = Object.keys(statusData);
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: keys.map(k => statusLabels[k] || k),
+        datasets: [{
+            data: keys.map(k => statusData[k]),
+            backgroundColor: keys.map(k => statusColors[k] || '#6c757d'),
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+</script>
+{% endblock %}

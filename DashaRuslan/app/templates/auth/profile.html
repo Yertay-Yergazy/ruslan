@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center p-4">
+                <div class="mb-3">
+                    {% if current_user.avatar and current_user.avatar != 'default_avatar.png' %}
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.avatar) }}"
+                             class="rounded-circle" width="120" height="120" style="object-fit:cover;" alt="Avatar">
+                    {% else %}
+                        <div class="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center"
+                             style="width:120px;height:120px;">
+                            <span class="display-5 fw-bold text-dark">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <h5 class="fw-bold">{{ current_user.full_name }}</h5>
+                <p class="text-muted mb-1">{{ current_user.email }}</p>
+                {% if current_user.phone %}<p class="text-muted small">{{ current_user.phone }}</p>{% endif %}
+                <span class="badge {% if current_user.role == 'admin' %}bg-danger{% elif current_user.role == 'employee' %}bg-primary{% else %}bg-success{% endif %} mt-1">
+                    {{ {'admin':'Администратор','employee':'Сотрудник','client':'Клиент'}.get(current_user.role, current_user.role) }}
+                </span>
+                <hr>
+                <p class="text-muted small">На сервисе с {{ current_user.created_at | format_date }}</p>
+                <a href="{{ url_for('client.my_bookings') }}" class="btn btn-warning w-100">
+                    <i class="fas fa-calendar-check me-2"></i>Мои записи
+                </a>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <!-- Edit Profile -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                    <h5 class="fw-bold mb-0">Редактировать профиль</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {{ form.hidden_tag() }}
+                        <input type="hidden" name="save_profile" value="1">
+                        <div class="row g-3 mb-3">
+                            <div class="col">
+                                <label class="form-label fw-medium">Имя</label>
+                                {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else "")) }}
+                                {% for e in form.first_name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                            <div class="col">
+                                <label class="form-label fw-medium">Фамилия</label>
+                                {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else "")) }}
+                                {% for e in form.last_name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Телефон</label>
+                            {{ form.phone(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Аватар</label>
+                            <input type="file" name="avatar" class="form-control" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">
+                            <i class="fas fa-save me-2"></i>Сохранить
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                    <h5 class="fw-bold mb-0">Изменить пароль</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {{ pwd_form.hidden_tag() }}
+                        <input type="hidden" name="change_password" value="1">
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Текущий пароль</label>
+                            {{ pwd_form.old_password(class="form-control" + (" is-invalid" if pwd_form.old_password.errors else "")) }}
+                            {% for e in pwd_form.old_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col">
+                                <label class="form-label fw-medium">Новый пароль</label>
+                                {{ pwd_form.new_password(class="form-control" + (" is-invalid" if pwd_form.new_password.errors else "")) }}
+                                {% for e in pwd_form.new_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                            <div class="col">
+                                <label class="form-label fw-medium">Подтвердите пароль</label>
+                                {{ pwd_form.new_password2(class="form-control" + (" is-invalid" if pwd_form.new_password2.errors else "")) }}
+                                {% for e in pwd_form.new_password2.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-outline-danger fw-bold px-4">
+                            <i class="fas fa-lock me-2"></i>Изменить пароль
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

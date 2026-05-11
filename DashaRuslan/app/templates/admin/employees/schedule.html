@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.employees') }}">Сотрудники</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('admin.employee_detail', employee_id=employee.id) }}">{{ employee.user.full_name }}</a></li>
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h5 class="fw-bold mb-0">Расписание: {{ employee.user.full_name }}</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    {% set days = [
+                        ('mon', 'Понедельник'),
+                        ('tue', 'Вторник'),
+                        ('wed', 'Среда'),
+                        ('thu', 'Четверг'),
+                        ('fri', 'Пятница'),
+                        ('sat', 'Суббота'),
+                        ('sun', 'Воскресенье')
+                    ] %}
+                    {% for prefix, name in days %}
+                    <div class="row align-items-center mb-3 py-2 rounded {% if loop.index % 2 == 0 %}bg-light{% endif %} px-2">
+                        <div class="col-3 col-md-2">
+                            <div class="form-check form-switch mb-0">
+                                {{ form[prefix + '_working'](class="form-check-input schedule-toggle", role="switch",
+                                   data_day=prefix) }}
+                            </div>
+                        </div>
+                        <div class="col-3 col-md-2 fw-medium">{{ name }}</div>
+                        <div class="col-3 col-md-4" id="{{ prefix }}_times">
+                            <div class="d-flex align-items-center gap-2">
+                                {{ form[prefix + '_start'](class="form-control form-control-sm", id=prefix+"_start") }}
+                                <span class="text-muted">–</span>
+                                {{ form[prefix + '_end'](class="form-control form-control-sm") }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary fw-bold px-4">
+                            <i class="fas fa-save me-2"></i>Сохранить расписание
+                        </button>
+                        <a href="{{ url_for('admin.employee_detail', employee_id=employee.id) }}" class="btn btn-outline-secondary px-4">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

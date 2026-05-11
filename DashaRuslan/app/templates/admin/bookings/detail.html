@@ -1,0 +1,116 @@
+{% extends "admin/base.html" %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.bookings') }}">Записи</a></li>
+{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Запись {{ booking.booking_number }}</h5>
+                    <span class="badge bg-{{ booking.status_badge }} fs-6 px-3">{{ booking.status_display }}</span>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Клиент</h6>
+                        <p class="mb-1 fw-bold fs-5">{{ booking.client.full_name }}</p>
+                        <p class="mb-1"><i class="fas fa-envelope text-muted me-2"></i>{{ booking.client.email }}</p>
+                        {% if booking.client.phone %}
+                        <p class="mb-1"><i class="fas fa-phone text-muted me-2"></i>{{ booking.client.phone }}</p>
+                        {% endif %}
+                        <a href="{{ url_for('admin.client_detail', client_id=booking.client_id) }}" class="btn btn-sm btn-outline-secondary mt-2">
+                            Профиль клиента
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Мастер</h6>
+                        <p class="mb-1 fw-bold fs-5">{{ booking.employee.user.full_name }}</p>
+                        <p class="mb-1 text-muted">{{ booking.employee.specialization or 'Мастер' }}</p>
+                        <a href="{{ url_for('admin.employee_detail', employee_id=booking.employee_id) }}" class="btn btn-sm btn-outline-secondary mt-2">
+                            Профиль мастера
+                        </a>
+                    </div>
+                    <div class="col-12"><hr class="my-0"></div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Услуга</h6>
+                        <p class="mb-1 fw-bold">{{ booking.service.name }}</p>
+                        <p class="mb-1 text-muted small">{{ booking.service.duration_display }}</p>
+                        <p class="mb-0 text-success fw-bold fs-5">{{ booking.total_price | format_price }} ₸</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Дата и время</h6>
+                        <p class="mb-1 fw-bold fs-5">{{ booking.booking_date | format_date }}</p>
+                        <p class="mb-0 text-muted">{{ booking.start_time | format_time }} — {{ booking.end_time | format_time }}</p>
+                    </div>
+                    {% if booking.car_info %}
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Автомобиль</h6>
+                        <p class="mb-0"><i class="fas fa-car me-2 text-muted"></i>{{ booking.car_info }}</p>
+                    </div>
+                    {% endif %}
+                    {% if booking.notes %}
+                    <div class="col-12">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-3">Пожелания клиента</h6>
+                        <div class="bg-light rounded p-3">{{ booking.notes }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Review -->
+        {% if booking.review %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h6 class="fw-bold mb-0">Отзыв клиента</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex gap-1 mb-2">
+                    {% for i in range(1, 6) %}
+                    <i class="fas fa-star {% if i <= booking.review.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                    {% endfor %}
+                    <span class="ms-2 fw-bold">{{ booking.review.rating }}/5</span>
+                </div>
+                {% if booking.review.comment %}
+                <p class="mb-0">{{ booking.review.comment }}</p>
+                {% endif %}
+                <div class="text-muted small mt-2">{{ booking.review.created_at | format_date }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Status Update -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h6 class="fw-bold mb-0">Управление записью</h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Статус</label>
+                        {{ form.status(class="form-select") }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Заметки администратора</label>
+                        {{ form.admin_notes(class="form-control", rows=4, placeholder="Внутренние заметки...") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">
+                        <i class="fas fa-save me-2"></i>Обновить статус
+                    </button>
+                </form>
+                <hr>
+                <div class="text-muted small">
+                    <div>Создана: {{ booking.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                    <div>Обновлена: {{ booking.updated_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

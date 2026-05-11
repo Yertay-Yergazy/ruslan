@@ -1,0 +1,214 @@
+/* ===============================================
+   АвтоСервис Про — Main Stylesheet
+   =============================================== */
+
+:root {
+    --primary: #0d6efd;
+    --warning: #ffc107;
+    --dark: #1a1a2e;
+    --card-shadow: 0 2px 15px rgba(0,0,0,.08);
+    --transition: all .25s ease;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: #212529;
+    background: #f8f9fa;
+}
+
+/* ──────────── Navbar ──────────── */
+.navbar {
+    background: linear-gradient(90deg, #0f0f1a, #1a1a2e) !important;
+    border-bottom: 2px solid #ffc10720;
+}
+.navbar-brand { letter-spacing: -.5px; }
+.nav-link { font-weight: 500; transition: var(--transition); }
+.nav-link:hover { color: #ffc107 !important; }
+.nav-link.active { color: #ffc107 !important; }
+
+/* ──────────── Hero ──────────── */
+.hero-section {
+    background: linear-gradient(135deg, #0f0f1a 0%, #16213e 40%, #0f3460 100%);
+    padding: 80px 0 80px;
+    position: relative;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffc107' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,193,7,.15);
+    border: 1px solid rgba(255,193,7,.3);
+    color: #ffc107;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: .85rem;
+    font-weight: 600;
+}
+.min-vh-75 { min-height: 75vh; }
+
+/* ──────────── Category cards ──────────── */
+.category-card {
+    transition: var(--transition);
+    border-radius: 16px !important;
+}
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255,193,7,.2) !important;
+}
+.category-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #ffc107, #ff9500);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+/* ──────────── Service cards ──────────── */
+.service-card {
+    border-radius: 16px !important;
+    transition: var(--transition);
+}
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(0,0,0,.12) !important;
+}
+.service-icon-box {
+    width: 54px;
+    height: 54px;
+    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: #ffc107;
+    flex-shrink: 0;
+}
+
+/* ──────────── Employee cards ──────────── */
+.employee-card {
+    border-radius: 16px !important;
+    transition: var(--transition);
+}
+.employee-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.12) !important;
+}
+
+/* ──────────── How it works steps ──────────── */
+.step-number {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #ffc107, #ff9500);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 auto;
+}
+
+/* ──────────── Booking wizard ──────────── */
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 4px;
+    transition: var(--transition);
+}
+.step-indicator.active .step-circle {
+    background: #ffc107;
+    color: #1a1a2e;
+}
+.step-indicator.done .step-circle {
+    background: #198754;
+    color: #fff;
+}
+.step-label {
+    font-size: .7rem;
+    font-weight: 500;
+    color: #6c757d;
+    white-space: nowrap;
+}
+.step-indicator.active .step-label { color: #ffc107; font-weight: 700; }
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #dee2e6;
+    margin-bottom: 20px;
+    align-self: flex-start;
+    margin-top: 17px;
+}
+
+/* Time slot buttons */
+.time-slot {
+    min-width: 80px;
+    transition: var(--transition);
+}
+.time-slot.active, .time-slot:hover {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #1a1a2e;
+}
+
+/* ──────────── Buttons ──────────── */
+.btn-warning {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #1a1a2e;
+    font-weight: 600;
+}
+.btn-warning:hover {
+    background: #e0a800;
+    border-color: #e0a800;
+    color: #1a1a2e;
+}
+
+/* ──────────── Cards ──────────── */
+.card { border-radius: 12px !important; }
+
+/* ──────────── Badges ──────────── */
+.badge { font-weight: 500; border-radius: 6px; }
+
+/* ──────────── Forms ──────────── */
+.form-control:focus, .form-select:focus {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 .25rem rgba(255,193,7,.25);
+}
+
+/* ──────────── Footer ──────────── */
+footer a { transition: var(--transition); }
+footer a:hover { color: #ffc107 !important; }
+
+/* ──────────── Responsive ──────────── */
+@media (max-width: 768px) {
+    .hero-section { padding: 50px 0; }
+    .step-label { display: none; }
+}

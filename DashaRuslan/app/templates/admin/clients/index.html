@@ -1,0 +1,94 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Клиенты</h4>
+    <span class="text-muted">Всего: {{ clients.total }}</span>
+</div>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="d-flex gap-3">
+            <input type="text" name="search" class="form-control" placeholder="Поиск по имени, email, телефону..."
+                   value="{{ search }}">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-search me-1"></i>Найти
+            </button>
+            {% if search %}<a href="{{ url_for('admin.clients') }}" class="btn btn-outline-secondary">Сбросить</a>{% endif %}
+        </form>
+    </div>
+</div>
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Клиент</th>
+                        <th>Контакты</th>
+                        <th>Записей</th>
+                        <th>Регистрация</th>
+                        <th>Статус</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients.items %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center fw-bold text-dark"
+                                     style="width:36px;height:36px;font-size:.85rem;flex-shrink:0;">
+                                    {{ client.first_name[0] }}{{ client.last_name[0] }}
+                                </div>
+                                <div>
+                                    <div class="fw-medium">{{ client.full_name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small">{{ client.email }}</div>
+                            <div class="text-muted small">{{ client.phone or '—' }}</div>
+                        </td>
+                        <td>{{ client.bookings|length }}</td>
+                        <td class="small text-muted">{{ client.created_at | format_date }}</td>
+                        <td>
+                            <span class="badge {% if client.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if client.is_active %}Активен{% else %}Заблокирован{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.client_detail', client_id=client.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center text-muted py-5">Клиентов не найдено</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Pagination -->
+{% if clients.pages > 1 %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if clients.has_prev %}
+        <li class="page-item"><a class="page-link" href="{{ url_for('admin.clients', page=clients.prev_num, search=search) }}">‹</a></li>
+        {% endif %}
+        {% for page in clients.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+            {% if page %}
+            <li class="page-item {% if page == clients.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.clients', page=page, search=search) }}">{{ page }}</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+        {% endfor %}
+        {% if clients.has_next %}
+        <li class="page-item"><a class="page-link" href="{{ url_for('admin.clients', page=clients.next_num, search=search) }}">›</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center py-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="text-center mb-4">
+                    <a href="{{ url_for('client.index') }}" class="d-inline-flex align-items-center gap-2 text-decoration-none">
+                        <i class="fas fa-car-wrench fs-2 text-warning"></i>
+                        <span class="h4 text-white mb-0 fw-bold">АвтоСервис Про</span>
+                    </a>
+                    <p class="text-muted mt-2">Создайте аккаунт для онлайн-записи</p>
+                </div>
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">Регистрация</h4>
+                        <form method="POST" novalidate>
+                            {{ form.hidden_tag() }}
+                            <div class="row g-3 mb-3">
+                                <div class="col">
+                                    <label class="form-label fw-medium">Имя</label>
+                                    {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), placeholder="Иван") }}
+                                    {% for e in form.first_name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                                </div>
+                                <div class="col">
+                                    <label class="form-label fw-medium">Фамилия</label>
+                                    {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), placeholder="Иванов") }}
+                                    {% for e in form.last_name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Email</label>
+                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="your@email.com") }}
+                                {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Телефон</label>
+                                {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="+7 (999) 123-45-67") }}
+                                {% for e in form.phone.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Пароль</label>
+                                <div class="input-group">
+                                    {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="password", placeholder="Минимум 6 символов") }}
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
+                                        <i class="fas fa-eye" id="password-eye"></i>
+                                    </button>
+                                    {% for e in form.password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">Подтвердите пароль</label>
+                                {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else ""), id="password2", placeholder="Повторите пароль") }}
+                                {% for e in form.password2.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                            </div>
+                            <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold">
+                                <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                            </button>
+                        </form>
+                        <hr>
+                        <div class="text-center text-muted small">
+                            Уже есть аккаунт?
+                            <a href="{{ url_for('auth.login') }}" class="fw-medium text-decoration-none">Войти</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function togglePassword(id) {
+    const f = document.getElementById(id);
+    const eye = document.getElementById(id + '-eye');
+    if (f.type === 'password') { f.type = 'text'; eye.className = 'fas fa-eye-slash'; }
+    else { f.type = 'password'; eye.className = 'fas fa-eye'; }
+}
+</script>
+{% endblock %}

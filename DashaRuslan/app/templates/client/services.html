@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="bg-dark text-white py-4">
+    <div class="container">
+        <h2 class="fw-bold mb-1">Наши услуги</h2>
+        <p class="text-muted mb-0">Полный спектр услуг для вашего автомобиля</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm sticky-top" style="top:80px;">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Поиск</h6>
+                    <form method="GET">
+                        <div class="input-group mb-3">
+                            <input type="text" name="search" class="form-control" placeholder="Название услуги..."
+                                   value="{{ search }}">
+                            {% if current_category %}
+                            <input type="hidden" name="category" value="{{ current_category.slug }}">
+                            {% endif %}
+                            <button type="submit" class="btn btn-warning"><i class="fas fa-search"></i></button>
+                        </div>
+                    </form>
+
+                    <h6 class="fw-bold mb-3">Категории</h6>
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('client.services', search=search) }}"
+                           class="list-group-item list-group-item-action border-0 rounded-2 mb-1
+                                  {% if not current_category %}active bg-warning text-dark{% endif %}">
+                            <i class="fas fa-th me-2"></i>Все услуги
+                        </a>
+                        {% for cat in categories %}
+                        <a href="{{ url_for('client.services', category=cat.slug, search=search) }}"
+                           class="list-group-item list-group-item-action border-0 rounded-2 mb-1
+                                  {% if current_category and current_category.id == cat.id %}active bg-warning text-dark{% endif %}">
+                            <i class="fas {{ cat.icon }} me-2"></i>{{ cat.name }}
+                            <span class="badge bg-light text-dark ms-auto">{{ cat.services.count() }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Grid -->
+        <div class="col-lg-9">
+            {% if current_category %}
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <h4 class="fw-bold mb-0">{{ current_category.name }}</h4>
+                <a href="{{ url_for('client.services') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>Сбросить
+                </a>
+            </div>
+            {% elif search %}
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <h5 class="mb-0">Результаты поиска: "{{ search }}"</h5>
+                <a href="{{ url_for('client.services') }}" class="btn btn-sm btn-outline-secondary">Сбросить</a>
+            </div>
+            {% endif %}
+
+            {% if services %}
+            <div class="row g-4">
+                {% for service in services %}
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100 service-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex gap-3 mb-3">
+                                <div class="service-icon-box flex-shrink-0">
+                                    <i class="fas {{ service.category.icon }}"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <span class="badge bg-light text-dark border small">{{ service.category.name }}</span>
+                                    <h5 class="fw-bold mb-1 mt-1">{{ service.name }}</h5>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-clock me-1"></i>{{ service.duration_display }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% if service.short_description %}
+                            <p class="text-muted small mb-3">{{ service.short_description }}</p>
+                            {% elif service.description %}
+                            <p class="text-muted small mb-3">{{ service.description[:150] }}{% if service.description|length > 150 %}...{% endif %}</p>
+                            {% endif %}
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-bold fs-5 text-success">{{ service.price | format_price }} ₸</div>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('client.service_detail', service_id=service.id) }}"
+                                       class="btn btn-sm btn-outline-secondary">Подробнее</a>
+                                    <a href="{{ url_for('client.booking', service_id=service.id) }}"
+                                       class="btn btn-sm btn-warning fw-bold">Записаться</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fs-1 text-muted mb-3 d-block opacity-25"></i>
+                <h5 class="text-muted">Услуги не найдены</h5>
+                <p class="text-muted">Попробуйте изменить параметры поиска</p>
+                <a href="{{ url_for('client.services') }}" class="btn btn-warning">Показать все услуги</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
