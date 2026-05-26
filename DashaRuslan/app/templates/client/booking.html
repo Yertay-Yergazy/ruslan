@@ -3,18 +3,19 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 {% block content %}
-<div class="bg-dark text-white py-4">
+<div class="bg-dark text-white py-4 page-hero booking-hero">
     <div class="container">
         <h2 class="fw-bold mb-1">Запись на услугу</h2>
         <p class="text-muted mb-0">Выберите услугу, мастера, дату и время</p>
     </div>
 </div>
 
-<div class="container py-5">
+<div class="container py-5 booking-page-container">
     <div class="row g-5 justify-content-center">
-        <div class="col-xl-8">
+        <div class="col-xl-9 col-xxl-8">
+            <div class="booking-workspace">
             <!-- Steps indicator -->
-            <div class="d-flex align-items-center gap-0 mb-5">
+            <div class="d-flex align-items-center gap-0 mb-5 booking-progress">
                 <div class="step-indicator active">
                     <div class="step-circle">1</div>
                     <div class="step-label">Услуга</div>
@@ -37,16 +38,24 @@
             </div>
 
             <form method="POST" id="bookingForm" novalidate>
-                {{ form.hidden_tag() }}
+                {{ form.csrf_token }}
                 {{ form.service_id(id="serviceIdHidden") }}
                 {{ form.start_time(id="startTimeHidden") }}
+                <div id="bookingNotice" class="alert alert-warning d-none" role="alert"></div>
 
                 <!-- Step 1: Service -->
                 <div class="booking-step" id="step1">
                     <h4 class="fw-bold mb-4">Выберите услугу</h4>
+                    {% if preselected_employee and not service %}
+                    <div class="alert alert-info border-0 mb-4">
+                        <i class="fas fa-user-check me-2"></i>
+                        Вы записываетесь к мастеру <strong>{{ preselected_employee.user.full_name }}</strong>.
+                        Ниже показаны услуги, которые он выполняет.
+                    </div>
+                    {% endif %}
                     {% if service %}
                     <!-- Pre-selected service -->
-                    <div class="card border-2 border-warning shadow-sm mb-3">
+                    <div class="card border-2 border-warning shadow-sm mb-3 booking-option selected">
                         <div class="card-body d-flex align-items-center gap-3 p-3">
                             <div class="service-icon-box">
                                 <i class="fas {{ service.category.icon }}"></i>
@@ -61,15 +70,20 @@
                     <div class="mb-3">
                         <a href="{{ url_for('client.services') }}" class="btn btn-sm btn-outline-secondary">Выбрать другую услугу</a>
                     </div>
+                    {% if not available_employees %}
+                    <div class="alert alert-warning border-0">
+                        Сейчас нет доступных мастеров для этой услуги. Выберите другую услугу или обратитесь к администратору.
+                    </div>
+                    {% endif %}
                     {% else %}
                     <div class="mb-4">
                         <input type="text" id="serviceSearch" class="form-control form-control-lg mb-3"
                                placeholder="Поиск услуги...">
-                        <div class="services-list" style="max-height:400px;overflow-y:auto;">
+                        <div class="services-list">
                             {% for svc in all_services %}
-                            <div class="card border-0 shadow-sm mb-2 service-option"
+                            <div class="card border-0 shadow-sm mb-2 service-option booking-option"
                                  data-id="{{ svc.id }}"
-                                 data-price="{{ svc.price }}"
+                                 data-price="{{ svc.price | format_price }}"
                                  data-name="{{ svc.name }}"
                                  data-duration="{{ svc.duration_display }}"
                                  data-search="{{ svc.name|lower }} {{ svc.category.name|lower }}">
@@ -85,12 +99,16 @@
                                     <i class="fas fa-check-circle text-warning d-none selected-icon"></i>
                                 </div>
                             </div>
+                            {% else %}
+                            <div class="booking-empty-hint text-center">
+                                Нет услуг, доступных для онлайн-записи.
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
                     {% endif %}
                     <button type="button" class="btn btn-warning btn-lg fw-bold px-5" id="nextStep1"
-                            {% if not service %}disabled{% endif %}>
+                            {% if not service or (service and not available_employees) %}disabled{% endif %}>
                         Далее <i class="fas fa-arrow-right ms-2"></i>
                     </button>
                 </div>
@@ -100,7 +118,8 @@
                     <h4 class="fw-bold mb-4">Выберите мастера</h4>
                     <div id="employeesList">
                         {% for emp in available_employees %}
-                        <div class="card border-0 shadow-sm mb-3 employee-option" data-id="{{ emp.id }}"
+                        <div class="card border-0 shadow-sm mb-3 employee-option booking-option" data-id="{{ emp.id }}"
+                             data-name="{{ emp.user.full_name }}"
                              style="cursor:pointer;">
                             <div class="card-body d-flex align-items-center gap-3 p-3">
                                 {% if emp.photo and emp.photo != 'default_employee.jpg' %}
@@ -153,8 +172,8 @@
                         </div>
                         <div class="col-md-7">
                             <label class="form-label fw-medium">Доступное время</label>
-                            <div id="timeSlotsContainer">
-                                <p class="text-muted small">Выберите дату для отображения доступного времени</p>
+                    <div id="timeSlotsContainer">
+                                <p class="booking-empty-hint">Выберите дату для отображения доступного времени</p>
                             </div>
                         </div>
                     </div>
@@ -219,6 +238,7 @@
                     </div>
                 </div>
             </form>
+            </div>
         </div>
     </div>
 </div>
@@ -235,9 +255,59 @@ const state = {
     servicePrice: '{{ service.price | format_price if service else "" }}',
     employeeId: '{{ form.employee_id.data or "" }}',
     employeeName: '',
-    date: '',
-    time: ''
+    date: '{{ form.booking_date.data.isoformat() if form.booking_date.data else "" }}',
+    time: '{{ form.start_time.data or "" }}'
 };
+const preferredEmployeeId = '{{ preselected_employee.id if preselected_employee else "" }}';
+const initialState = {
+    employeeId: state.employeeId,
+    date: state.date,
+    time: state.time
+};
+const initialStep = {{ initial_step | default(1) }};
+
+const bookingNotice = document.getElementById('bookingNotice');
+
+function showBookingNotice(message, variant = 'warning') {
+    if (!bookingNotice) return;
+    bookingNotice.className = `alert alert-${variant}`;
+    bookingNotice.textContent = message;
+    bookingNotice.classList.remove('d-none');
+    bookingNotice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function hideBookingNotice() {
+    bookingNotice?.classList.add('d-none');
+}
+
+function formatDisplayDate(value) {
+    if (!value) return '—';
+    const parts = value.split('-');
+    if (parts.length !== 3) return value;
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
+function resetEmployeeSelection() {
+    state.employeeId = '';
+    state.employeeName = '';
+    document.getElementById('employeeIdField').value = '';
+    document.getElementById('nextStep2').disabled = true;
+    resetTimeSelection('Выберите дату для отображения доступного времени');
+}
+
+function resetTimeSelection(message = 'Выберите дату для отображения доступного времени') {
+    state.date = '';
+    state.time = '';
+    document.getElementById('startTimeHidden').value = '';
+    document.getElementById('nextStep3').disabled = true;
+    const container = document.getElementById('timeSlotsContainer');
+    if (container) {
+        container.innerHTML = `<p class="booking-empty-hint">${message}</p>`;
+    }
+    if (datePicker) {
+        datePicker.clear();
+    }
+}
 
 // Init flatpickr
 const datePicker = flatpickr('#bookingDatePicker', {
@@ -247,6 +317,8 @@ const datePicker = flatpickr('#bookingDatePicker', {
     dateFormat: 'Y-m-d',
     onChange: (selectedDates, dateStr) => {
         state.date = dateStr;
+        state.time = '';
+        document.getElementById('startTimeHidden').value = '';
         loadTimeSlots();
         document.getElementById('nextStep3').disabled = !state.time;
     }
@@ -265,6 +337,9 @@ document.querySelectorAll('.service-option').forEach(card => {
         state.serviceName = card.dataset.name;
         state.servicePrice = card.dataset.price;
         document.getElementById('nextStep1').disabled = false;
+        document.getElementById('serviceIdHidden').value = state.serviceId;
+        hideBookingNotice();
+        resetEmployeeSelection();
 
         // Load employees for this service
         fetch(`/api/employees-for-service?service_id=${state.serviceId}`)
@@ -273,7 +348,7 @@ document.querySelectorAll('.service-option').forEach(card => {
                 const container = document.getElementById('employeesList');
                 if (data.employees && data.employees.length) {
                     container.innerHTML = data.employees.map(emp => `
-                        <div class="card border-0 shadow-sm mb-3 employee-option" data-id="${emp.id}" data-name="${emp.name}" style="cursor:pointer;">
+                        <div class="card border-0 shadow-sm mb-3 employee-option booking-option" data-id="${emp.id}" data-name="${emp.name}" style="cursor:pointer;">
                             <div class="card-body d-flex align-items-center gap-3 p-3">
                                 <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center fw-bold text-dark"
                                      style="width:60px;height:60px;flex-shrink:0;font-size:1.2rem;">
@@ -289,8 +364,12 @@ document.querySelectorAll('.service-option').forEach(card => {
                         </div>
                     `).join('');
                     initEmployeeCards();
+                    if (preferredEmployeeId) {
+                        const preferred = container.querySelector(`.employee-option[data-id="${preferredEmployeeId}"]`);
+                        preferred?.click();
+                    }
                 } else {
-                    container.innerHTML = '<p class="text-muted text-center py-3">Нет доступных мастеров</p>';
+                    container.innerHTML = '<p class="booking-empty-hint text-center py-3">Нет доступных мастеров для выбранной услуги</p>';
                 }
             });
     });
@@ -320,6 +399,8 @@ function initEmployeeCards() {
             state.employeeName = card.dataset.name || card.querySelector('.fw-bold')?.textContent || '';
             document.getElementById('employeeIdField').value = state.employeeId;
             document.getElementById('nextStep2').disabled = false;
+            hideBookingNotice();
+            resetTimeSelection();
         });
     });
 }
@@ -334,10 +415,10 @@ if (preEmp) {
 {% endif %}
 
 function loadTimeSlots() {
-    if (!state.serviceId || !state.employeeId || !state.date) return;
+    if (!state.serviceId || !state.employeeId || !state.date) return Promise.resolve();
     const container = document.getElementById('timeSlotsContainer');
     container.innerHTML = '<div class="text-muted">Загрузка...</div>';
-    fetch(`/api/available-slots?employee_id=${state.employeeId}&service_id=${state.serviceId}&date=${state.date}`)
+    return fetch(`/api/available-slots?employee_id=${state.employeeId}&service_id=${state.serviceId}&date=${state.date}`)
         .then(r => r.json())
         .then(data => {
             if (data.slots && data.slots.length) {
@@ -349,18 +430,40 @@ function loadTimeSlots() {
                     `).join('') + '</div>';
                 container.querySelectorAll('.time-slot').forEach(btn => {
                     btn.addEventListener('click', () => {
-                        container.querySelectorAll('.time-slot').forEach(b => b.classList.remove('btn-warning', 'active'));
+                        container.querySelectorAll('.time-slot').forEach(b => {
+                            b.classList.remove('btn-warning', 'active');
+                            b.classList.add('btn-outline-secondary');
+                        });
                         btn.classList.remove('btn-outline-secondary');
                         btn.classList.add('btn-warning', 'active');
                         state.time = btn.dataset.time;
                         document.getElementById('startTimeHidden').value = state.time;
                         document.getElementById('nextStep3').disabled = false;
+                        hideBookingNotice();
                     });
                 });
+                if (state.time) {
+                    const active = container.querySelector(`.time-slot[data-time="${state.time}"]`);
+                    if (active) {
+                        active.click();
+                    } else {
+                        state.time = '';
+                        document.getElementById('startTimeHidden').value = '';
+                        document.getElementById('nextStep3').disabled = true;
+                    }
+                }
             } else {
                 container.innerHTML = `<div class="alert alert-warning">${data.message || 'Нет доступного времени на эту дату'}</div>`;
                 state.time = '';
+                document.getElementById('startTimeHidden').value = '';
+                document.getElementById('nextStep3').disabled = true;
             }
+        })
+        .catch(() => {
+            container.innerHTML = '<div class="alert alert-danger">Не удалось загрузить время. Попробуйте выбрать дату ещё раз.</div>';
+            state.time = '';
+            document.getElementById('startTimeHidden').value = '';
+            document.getElementById('nextStep3').disabled = true;
         });
 }
 
@@ -370,47 +473,99 @@ function showStep(n) {
     document.getElementById('step' + n).classList.remove('d-none');
     [1,2,3,4].forEach(i => {
         const ind = document.getElementById('step' + i + 'ind') || document.querySelector(`.step-indicator:nth-child(${i*2-1})`);
+        if (!ind) return;
+        ind.classList.toggle('active', i === n);
+        ind.classList.toggle('done', i < n);
     });
 }
 
 function updateSummary() {
     document.getElementById('summaryService').textContent = state.serviceName || '—';
     document.getElementById('summaryEmployee').textContent = state.employeeName || '—';
-    document.getElementById('summaryDate').textContent = state.date || '—';
+    document.getElementById('summaryDate').textContent = formatDisplayDate(state.date);
     document.getElementById('summaryTime').textContent = state.time || '—';
     document.getElementById('summaryPrice').textContent = state.servicePrice ? state.servicePrice + ' ₸' : '—';
 }
 
 document.getElementById('nextStep1')?.addEventListener('click', () => {
+    if (!state.serviceId) {
+        showBookingNotice('Выберите услугу, чтобы продолжить.');
+        return;
+    }
     document.getElementById('serviceIdHidden').value = state.serviceId;
-    document.getElementById('step1').classList.add('d-none');
-    document.getElementById('step2').classList.remove('d-none');
+    hideBookingNotice();
+    showStep(2);
 });
 document.getElementById('nextStep2')?.addEventListener('click', () => {
-    document.getElementById('step2').classList.add('d-none');
-    document.getElementById('step3').classList.remove('d-none');
+    if (!state.employeeId) {
+        showBookingNotice('Выберите мастера, чтобы продолжить.');
+        return;
+    }
+    hideBookingNotice();
+    showStep(3);
 });
 document.getElementById('nextStep3')?.addEventListener('click', () => {
-    document.getElementById('step3').classList.add('d-none');
-    document.getElementById('step4').classList.remove('d-none');
+    if (!state.date || !state.time) {
+        showBookingNotice('Выберите дату и свободное время.');
+        return;
+    }
+    hideBookingNotice();
+    showStep(4);
     updateSummary();
 });
 document.getElementById('backStep2')?.addEventListener('click', () => {
-    document.getElementById('step2').classList.add('d-none');
-    document.getElementById('step1').classList.remove('d-none');
+    showStep(1);
 });
 document.getElementById('backStep3')?.addEventListener('click', () => {
-    document.getElementById('step3').classList.add('d-none');
-    document.getElementById('step2').classList.remove('d-none');
+    showStep(2);
 });
 document.getElementById('backStep4')?.addEventListener('click', () => {
-    document.getElementById('step4').classList.add('d-none');
-    document.getElementById('step3').classList.remove('d-none');
+    showStep(3);
 });
 
 // If service pre-selected, initialize employee step
 {% if service %}
 document.getElementById('serviceIdHidden').value = '{{ service.id }}';
 {% endif %}
+
+if (initialState.date) {
+    state.date = initialState.date;
+    datePicker.setDate(initialState.date, false);
+}
+if (initialState.time) {
+    state.time = initialState.time;
+    document.getElementById('startTimeHidden').value = initialState.time;
+}
+if (initialState.employeeId && state.date) {
+    loadTimeSlots();
+}
+if (initialStep > 1) {
+    showStep(initialStep);
+    if (initialStep === 4) updateSummary();
+}
+
+document.getElementById('bookingForm')?.addEventListener('submit', (event) => {
+    document.getElementById('serviceIdHidden').value = state.serviceId;
+    document.getElementById('employeeIdField').value = state.employeeId;
+    document.getElementById('startTimeHidden').value = state.time;
+
+    if (!state.serviceId) {
+        event.preventDefault();
+        showStep(1);
+        showBookingNotice('Выберите услугу, чтобы оформить запись.', 'danger');
+        return;
+    }
+    if (!state.employeeId) {
+        event.preventDefault();
+        showStep(2);
+        showBookingNotice('Выберите мастера, чтобы оформить запись.', 'danger');
+        return;
+    }
+    if (!state.date || !state.time) {
+        event.preventDefault();
+        showStep(3);
+        showBookingNotice('Выберите дату и свободное время, чтобы оформить запись.', 'danger');
+    }
+});
 </script>
 {% endblock %}

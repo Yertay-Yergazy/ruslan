@@ -86,16 +86,24 @@ def booking():
     employee_id_param = request.args.get('employee_id', type=int)
 
     service = None
-    if service_id:
-        service = Service.query.filter_by(id=service_id, is_active=True).first_or_404()
-
+    preselected_employee = None
     form = BookingForm()
+    selected_service_id = request.form.get('service_id', type=int) if request.method == 'POST' else service_id
+    initial_step = 1
+
+    if employee_id_param:
+        preselected_employee = Employee.query.filter_by(id=employee_id_param, is_available=True).first()
+
+    if selected_service_id:
+        service = Service.query.filter_by(id=selected_service_id, is_active=True).first()
+        if not service and request.method == 'GET':
+            abort(404)
 
     # Build employee choices
     if service:
         available_employees = [e for e in service.employees if e.is_available]
     else:
-        available_employees = Employee.query.filter_by(is_available=True).all()
+        available_employees = [preselected_employee] if preselected_employee else Employee.query.filter_by(is_available=True).all()
 
     form.employee_id.choices = [
         (e.id, f"{e.user.full_name} — {e.specialization or 'Мастер'}")
@@ -107,24 +115,28 @@ def booking():
     if form.validate_on_submit():
         emp = Employee.query.get(form.employee_id.data)
         svc = Service.query.get(int(form.service_id.data))
-        if not emp or not svc:
+        if not emp or not svc or not svc.is_active or not emp.is_available:
             flash('Ошибка выбора мастера или услуги.', 'danger')
             return redirect(url_for('client.booking'))
+
+        if svc not in emp.services:
+            flash('Выбранный мастер не выполняет эту услугу. Пожалуйста, выберите другого мастера.', 'danger')
+            return redirect(url_for('client.booking', service_id=svc.id))
 
         booking_date = form.booking_date.data
         if booking_date < date.today():
             flash('Нельзя записаться на прошедшую дату.', 'danger')
-            return redirect(url_for('client.booking', service_id=service_id))
+            return redirect(url_for('client.booking', service_id=svc.id))
 
         try:
             start_time_obj = datetime.strptime(form.start_time.data, '%H:%M').time()
         except ValueError:
             flash('Неверный формат времени.', 'danger')
-            return redirect(url_for('client.booking', service_id=service_id))
+            return redirect(url_for('client.booking', service_id=svc.id))
 
         if not is_slot_available(emp.id, booking_date, start_time_obj, svc.duration):
             flash('Выбранное время уже занято. Пожалуйста, выберите другое.', 'warning')
-            return redirect(url_for('client.booking', service_id=service_id))
+            return redirect(url_for('client.booking', service_id=svc.id))
 
         end_time_obj = (datetime.combine(booking_date, start_time_obj) +
                         timedelta(minutes=svc.duration)).time()
@@ -147,22 +159,50 @@ def booking():
 
         flash('Запись успешно создана! Ожидайте подтверждения.', 'success')
         return redirect(url_for('client.booking_success', booking_id=new_booking.id))
+    elif request.method == 'POST':
+        missing_labels = {
+            'service_id': 'услугу',
+            'employee_id': 'мастера',
+            'booking_date': 'дату',
+            'start_time': 'время'
+        }
+        missing = [label for field, label in missing_labels.items() if field in form.errors]
+        if missing:
+            flash(f"Проверьте выбранные данные записи: выберите {', '.join(missing)}.", 'danger')
+        else:
+            flash('Не удалось создать запись. Проверьте данные формы и попробуйте ещё раз.', 'danger')
+        if 'service_id' in form.errors:
+            initial_step = 1
+        elif 'employee_id' in form.errors:
+            initial_step = 2
+        elif 'booking_date' in form.errors or 'start_time' in form.errors:
+            initial_step = 3
+        else:
+            initial_step = 4
 
     # Pre-fill
-    if service_id:
-        form.service_id.data = str(service_id)
-    if employee_id_param:
+    if service and request.method == 'GET':
+        form.service_id.data = str(service.id)
+    can_preselect_employee = preselected_employee and (not service or preselected_employee in available_employees)
+    if can_preselect_employee and request.method == 'GET':
         form.employee_id.data = employee_id_param
+    elif service and preselected_employee and preselected_employee not in available_employees:
+        preselected_employee = None
 
     # Get all active services for selector
-    all_services = Service.query.filter_by(is_active=True).order_by(Service.name).all()
+    if preselected_employee and not service:
+        all_services = sorted([s for s in preselected_employee.services if s.is_active], key=lambda s: s.name)
+    else:
+        all_services = Service.query.filter_by(is_active=True).order_by(Service.name).all()
 
     return render_template('client/booking.html',
                            title='Запись на услугу',
                            form=form,
                            service=service,
                            all_services=all_services,
-                           available_employees=available_employees)
+                           available_employees=available_employees,
+                           initial_step=initial_step,
+                           preselected_employee=preselected_employee)
 
 
 @bp.route('/booking/success/<int:booking_id>')
@@ -172,7 +212,7 @@ def booking_success(booking_id):
     if booking.client_id != current_user.id:
         abort(403)
     return render_template('client/booking_success.html',
-                           title='Запись подтверждена',
+                           title='Запись создана',
                            booking=booking)
 
 
@@ -248,6 +288,8 @@ def booking_review(booking_id):
         db.session.add(review)
         db.session.commit()
         flash('Спасибо за ваш отзыв!', 'success')
+    else:
+        flash('Укажите оценку от 1 до 5 перед отправкой отзыва.', 'warning')
     return redirect(url_for('client.booking_detail', booking_id=booking_id))
 
 
@@ -265,6 +307,16 @@ def about():
     return render_template('client/about.html', title='О нас')
 
 
-@bp.route('/contacts')
+@bp.route('/contacts', methods=['GET', 'POST'])
 def contacts():
+    if request.method == 'POST':
+        name = (request.form.get('name') or '').strip()
+        phone = (request.form.get('phone') or '').strip()
+        email = (request.form.get('email') or '').strip()
+        message = (request.form.get('message') or '').strip()
+        if not name or not (phone or email) or not message:
+            flash('Заполните имя, сообщение и хотя бы один контакт для связи.', 'warning')
+        else:
+            flash('Сообщение отправлено! Мы свяжемся с вами в ближайшее время.', 'success')
+        return redirect(url_for('client.contacts'))
     return render_template('client/contacts.html', title='Контакты')

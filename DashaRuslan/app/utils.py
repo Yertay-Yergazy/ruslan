@@ -85,6 +85,9 @@ def get_busy_slots(employee_id, date, service_duration, exclude_booking_id=None)
 def is_slot_available(employee_id, date, start_time_obj, service_duration):
     """Check if a time slot is available for a service."""
     from app.models import Booking, WorkSchedule
+    if date == datetime.today().date() and datetime.combine(date, start_time_obj) <= datetime.now():
+        return False
+
     # Check work schedule
     schedule = WorkSchedule.query.filter_by(
         employee_id=employee_id,

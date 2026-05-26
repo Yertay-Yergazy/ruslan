@@ -13,6 +13,11 @@
             <div class="card-body p-4">
                 <form method="POST" novalidate>
                     {{ form.hidden_tag() }}
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Проверьте время в расписании. Рабочий день должен иметь начало и окончание, а окончание должно быть позже начала.
+                    </div>
+                    {% endif %}
                     {% set days = [
                         ('mon', 'Понедельник'),
                         ('tue', 'Вторник'),
@@ -33,10 +38,16 @@
                         <div class="col-3 col-md-2 fw-medium">{{ name }}</div>
                         <div class="col-3 col-md-4" id="{{ prefix }}_times">
                             <div class="d-flex align-items-center gap-2">
-                                {{ form[prefix + '_start'](class="form-control form-control-sm", id=prefix+"_start") }}
+                                {{ form[prefix + '_start'](class="form-control form-control-sm" + (" is-invalid" if form[prefix + '_start'].errors else ""), id=prefix+"_start") }}
                                 <span class="text-muted">–</span>
-                                {{ form[prefix + '_end'](class="form-control form-control-sm") }}
+                                {{ form[prefix + '_end'](class="form-control form-control-sm" + (" is-invalid" if form[prefix + '_end'].errors else "")) }}
                             </div>
+                            {% for e in form[prefix + '_start'].errors %}
+                            <div class="text-danger small mt-1">{{ e }}</div>
+                            {% endfor %}
+                            {% for e in form[prefix + '_end'].errors %}
+                            <div class="text-danger small mt-1">{{ e }}</div>
+                            {% endfor %}
                         </div>
                     </div>
                     {% endfor %}

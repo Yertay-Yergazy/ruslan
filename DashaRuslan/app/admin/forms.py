@@ -5,16 +5,30 @@ from wtforms import (StringField, TextAreaField, DecimalField, IntegerField,
                      PasswordField, TimeField)
 from wtforms.validators import DataRequired, Optional, Length, NumberRange, Email, ValidationError
 from app.models import User
+from slugify import slugify
 
 
 class ServiceCategoryForm(FlaskForm):
     name = StringField('Название', validators=[DataRequired(), Length(2, 100)])
     description = TextAreaField('Описание', validators=[Optional()])
     icon = StringField('Font Awesome иконка (fa-...)', validators=[Optional(), Length(max=50)])
-    slug = StringField('Slug (URL)', validators=[DataRequired(), Length(2, 100)])
+    slug = StringField('Slug (URL)', validators=[Optional(), Length(max=100)])
     sort_order = IntegerField('Порядок сортировки', validators=[Optional()], default=0)
     is_active = BooleanField('Активна')
     submit = SubmitField('Сохранить')
+
+    def __init__(self, category_id=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.category_id = category_id
+
+    def validate_slug(self, slug):
+        from app.models import ServiceCategory
+        normalized = slugify((slug.data or '').strip() or (self.name.data or '').strip())
+        if not normalized:
+            raise ValidationError('Укажите название или slug категории.')
+        category = ServiceCategory.query.filter_by(slug=normalized).first()
+        if category and category.id != self.category_id:
+            raise ValidationError('Категория с таким slug уже существует.')
 
 
 class ServiceForm(FlaskForm):
@@ -55,13 +69,14 @@ class EmployeeForm(FlaskForm):
         self.employee_id = employee_id
 
     def validate_email(self, email):
-        user = User.query.filter_by(email=email.data.lower()).first()
+        normalized_email = email.data.lower().strip()
+        user = User.query.filter_by(email=normalized_email).first()
         if user:
             # Allow if it's the same employee's user
             if self.employee_id:
                 from app.models import Employee
                 emp = Employee.query.get(self.employee_id)
-                if emp and emp.user.email == email.data.lower():
+                if emp and emp.user.email == normalized_email:
                     return
             raise ValidationError('Этот email уже зарегистрирован.')
 
@@ -97,6 +112,27 @@ class WorkScheduleForm(FlaskForm):
     sun_end = TimeField('Конец', validators=[Optional()])
 
     submit = SubmitField('Сохранить расписание')
+
+    def validate(self, extra_validators=None):
+        is_valid = super().validate(extra_validators=extra_validators)
+        day_fields = [
+            ('mon', 'Понедельник'), ('tue', 'Вторник'), ('wed', 'Среда'),
+            ('thu', 'Четверг'), ('fri', 'Пятница'), ('sat', 'Суббота'),
+            ('sun', 'Воскресенье')
+        ]
+        for prefix, day_name in day_fields:
+            working = getattr(self, f'{prefix}_working').data
+            start_field = getattr(self, f'{prefix}_start')
+            end_field = getattr(self, f'{prefix}_end')
+            if not working:
+                continue
+            if not start_field.data or not end_field.data:
+                start_field.errors.append(f'Укажите время для дня "{day_name}".')
+                is_valid = False
+            elif start_field.data >= end_field.data:
+                end_field.errors.append(f'Конец рабочего дня должен быть позже начала для дня "{day_name}".')
+                is_valid = False
+        return is_valid
 
 
 class BookingStatusForm(FlaskForm):

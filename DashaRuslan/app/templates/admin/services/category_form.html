@@ -18,9 +18,10 @@
                         {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-medium">URL slug *</label>
-                        {{ form.slug(class="form-control" + (" is-invalid" if form.slug.errors else ""), placeholder="napr-to-obsl") }}
+                        <label class="form-label fw-medium">URL slug</label>
+                        {{ form.slug(class="form-control" + (" is-invalid" if form.slug.errors else ""), placeholder="auto-iz-nazvaniya") }}
                         {% for e in form.slug.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        <small class="text-muted">Можно оставить пустым: адрес сформируется автоматически из названия.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-medium">Описание</label>

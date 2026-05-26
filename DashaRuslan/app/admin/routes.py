@@ -250,7 +250,7 @@ def categories():
 def category_new():
     form = ServiceCategoryForm()
     if form.validate_on_submit():
-        slug = form.slug.data.strip() or slugify(form.name.data)
+        slug = slugify((form.slug.data or '').strip() or form.name.data)
         cat = ServiceCategory(
             name=form.name.data.strip(),
             description=form.description.data,
@@ -272,12 +272,12 @@ def category_new():
 @admin_required
 def category_edit(cat_id):
     cat = ServiceCategory.query.get_or_404(cat_id)
-    form = ServiceCategoryForm(obj=cat)
+    form = ServiceCategoryForm(category_id=cat_id, obj=cat)
     if form.validate_on_submit():
         cat.name = form.name.data.strip()
         cat.description = form.description.data
         cat.icon = form.icon.data.strip() or 'fa-wrench'
-        cat.slug = form.slug.data.strip() or slugify(form.name.data)
+        cat.slug = slugify((form.slug.data or '').strip() or form.name.data)
         cat.sort_order = form.sort_order.data or 0
         cat.is_active = form.is_active.data
         db.session.commit()
@@ -475,6 +475,8 @@ def employee_schedule(employee_id):
         db.session.commit()
         flash('Расписание сохранено.', 'success')
         return redirect(url_for('admin.employee_detail', employee_id=employee_id))
+    elif request.method == 'POST':
+        flash('Проверьте расписание: для рабочих дней нужно указать корректное время начала и окончания.', 'danger')
 
     # Pre-fill from existing schedule
     existing = {s.day_of_week: s for s in employee.schedules}

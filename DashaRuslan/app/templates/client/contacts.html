@@ -72,24 +72,25 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <h5 class="fw-bold mb-4">Написать нам</h5>
-                    <form>
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-medium">Ваше имя</label>
-                                <input type="text" class="form-control" placeholder="Айдар Сейткали">
+                                <input type="text" name="name" class="form-control" placeholder="Айдар Сейткали" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-medium">Телефон</label>
-                                <input type="tel" class="form-control" placeholder="+7 (999) 123-45-67">
+                                <input type="tel" name="phone" class="form-control" placeholder="+7 (999) 123-45-67">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-medium">Email</label>
-                            <input type="email" class="form-control" placeholder="your@email.com">
+                            <input type="email" name="email" class="form-control" placeholder="your@email.com">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-medium">Тема</label>
-                            <select class="form-select">
+                            <select name="subject" class="form-select">
                                 <option>Вопрос об услугах</option>
                                 <option>Стоимость ремонта</option>
                                 <option>Отзыв</option>
@@ -98,10 +99,9 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-medium">Сообщение</label>
-                            <textarea class="form-control" rows="4" placeholder="Ваше сообщение..."></textarea>
+                            <textarea name="message" class="form-control" rows="4" placeholder="Ваше сообщение..." required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-warning fw-bold px-5"
-                                onclick="alert('Сообщение отправлено! Мы свяжемся с вами в ближайшее время.'); return false;">
+                        <button type="submit" class="btn btn-warning fw-bold px-5">
                             <i class="fas fa-paper-plane me-2"></i>Отправить
                         </button>
                     </form>

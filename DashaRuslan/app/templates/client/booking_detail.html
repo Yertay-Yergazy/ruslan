@@ -89,7 +89,7 @@
                         <i class="fas fa-star text-warning me-2"></i>Оставьте отзыв
                     </h5>
                     <form method="POST" action="{{ url_for('client.booking_review', booking_id=booking.id) }}">
-                        {{ review_form.hidden_tag() }}
+                        {{ review_form.csrf_token }}
                         <div class="mb-4">
                             <label class="form-label fw-medium">Ваша оценка</label>
                             <div class="star-rating d-flex gap-2">

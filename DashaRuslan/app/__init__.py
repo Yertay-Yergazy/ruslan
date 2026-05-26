@@ -1,9 +1,10 @@
+from datetime import datetime
 from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from config import Config
-from app.models import db, User
+from app.models import db, User, Booking
 
 login_manager = LoginManager()
 migrate = Migrate()
@@ -46,6 +47,10 @@ def create_app(config_class=Config):
     def csrf_token():
         return generate_csrf()
 
+    @app.route('/favicon.ico')
+    def favicon():
+        return '', 204
+
     # Template filters
     @app.template_filter('format_time')
     def format_time_filter(t):
@@ -72,5 +77,17 @@ def create_app(config_class=Config):
     @app.template_global()
     def stars_range():
         return range(1, 6)
+
+    @app.context_processor
+    def inject_globals():
+        pending_count = 0
+        try:
+            pending_count = Booking.query.filter_by(status=Booking.STATUS_PENDING).count()
+        except Exception:
+            pending_count = 0
+        return {
+            'now': datetime.utcnow(),
+            'pending_count': pending_count
+        }
 
     return app

@@ -3,7 +3,7 @@ from flask import jsonify, request
 from flask_login import login_required
 from app.api import bp
 from app.models import Employee, Service, WorkSchedule, Booking
-from app.utils import get_busy_slots
+from app.utils import admin_required, get_busy_slots
 
 
 @bp.route('/available-slots')
@@ -29,6 +29,13 @@ def available_slots():
     if not service:
         return jsonify({'error': 'Service not found'}), 404
 
+    employee = Employee.query.get(employee_id)
+    if not employee or not employee.is_available:
+        return jsonify({'error': 'Employee not found'}), 404
+
+    if service not in employee.services:
+        return jsonify({'slots': [], 'message': 'Этот мастер не выполняет выбранную услугу'})
+
     # Get employee work schedule for that day
     schedule = WorkSchedule.query.filter_by(
         employee_id=employee_id,
@@ -53,6 +60,9 @@ def available_slots():
 
     while current + service_end_delta <= schedule_end:
         slot_time = current.time()
+        if target_date == date.today() and current <= datetime.now():
+            current += slot_step
+            continue
 
         # Check if all slots needed for this service are free
         is_free = True
@@ -97,6 +107,7 @@ def employees_for_service():
 
 @bp.route('/calendar-events')
 @login_required
+@admin_required
 def calendar_events():
     """Return booking events for FullCalendar (admin use)."""
     start_str = request.args.get('start', '')

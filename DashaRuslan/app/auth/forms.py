@@ -22,7 +22,7 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Зарегистрироваться')
 
     def validate_email(self, email):
-        user = User.query.filter_by(email=email.data.lower()).first()
+        user = User.query.filter_by(email=email.data.lower().strip()).first()
         if user:
             raise ValidationError('Этот email уже зарегистрирован.')
 
